@@ -18,7 +18,7 @@ niches:
     palettes: [terracotta_boho, sage_minimal, clay_rust, midnight_gold]
     motifs: [arch, sun, wave, moon_phases]
     digital_sizes: [poster_18x24, 5x7]
-    pod_size: poster_18x24
+    pod_sizes: [poster_18x24]
     price_digital: 4.50
     price_pod: 24.00
     seo:
@@ -72,7 +72,7 @@ niches:
       - text: "Simplicity is the ultimate sophistication"
         author: null
     digital_sizes: [poster_18x24, letter_8.5x11, 5x7]
-    pod_size: poster_18x24
+    pod_sizes: [poster_18x24]
     price_digital: 3.50
     price_pod: 22.00
     seo:
@@ -136,3 +136,213 @@ niches:
         - craft supplies
         - pattern design
         - boho pattern
+
+  # --- Fall / Halloween (trending seasonal niches) ---------------------
+
+  halloween_line_art_wall_decor:
+    type: line_art
+    product_mode: both
+    palettes: [terracotta_boho, clay_rust, midnight_gold]
+    motifs: [pumpkin, ghost, bat, moon_stars, witch_hat, black_cat]
+    digital_sizes: [poster_18x24, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 4.50
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        {motif_title} Halloween Line Art Printable | Minimalist
+        {palette_title} Wall Decor | Digital Download Poster
+      description_template: |
+        A minimalist {motif_title} line-art print in a {palette_title}
+        colour palette - a subtler, more grown-up take on Halloween decor
+        for gallery walls, entryways, and mantels.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Ready to print at home, at a local print shop, or order framed
+
+        This is a digital file - no physical item will be shipped.
+        For personal use only; not for resale or redistribution of the file.
+      tags:
+        - halloween decor
+        - spooky wall art
+        - line art print
+        - minimalist decor
+        - printable art
+        - digital download
+        - fall decor
+        - halloween print
+        - instant download
+        - wall art print
+        - autumn decor
+        - halloween art
+
+  halloween_quote_posters:
+    type: quote_poster
+    product_mode: both
+    palettes: [terracotta_boho, charcoal_mono, midnight_gold]
+    quotes:
+      - text: "Basic Witch"
+        author: null
+      - text: "Spooky Season"
+        author: null
+      - text: "Trick or Treat"
+        author: null
+      - text: "Little Pumpkin"
+        author: null
+      - text: "Boo Y'all"
+        author: null
+      - text: "Happy Haunting"
+        author: null
+      - text: "Witchy Vibes Only"
+        author: null
+      - text: "But First, Coffee"
+        author: null
+    digital_sizes: [poster_18x24, letter_8.5x11, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 3.50
+    price_pod: 22.00
+    seo:
+      title_template: >-
+        "{quote_short}" Halloween Quote Poster | Minimalist Typography
+        Print | Printable Wall Art
+      description_template: |
+        A clean, minimalist typography poster reading "{quote}" - printed
+        on a soft {palette_title} background. A playful but grown-up way
+        to bring Halloween into your decor.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Multiple sizes included, see photos for details
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - halloween quote
+        - spooky poster
+        - typography print
+        - witch decor
+        - digital download
+        - halloween decor
+        - instant download
+        - fall wall art
+        - october decor
+        - aesthetic decor
+        - printable quote
+        - dorm decor
+
+  fall_line_art_wall_decor:
+    type: line_art
+    product_mode: both
+    palettes: [terracotta_boho, clay_rust, sage_minimal]
+    motifs: [leaf, pumpkin]
+    digital_sizes: [poster_18x24, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 4.50
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        {motif_title} Fall Line Art Printable | Minimalist {palette_title}
+        Autumn Wall Decor | Digital Download Poster
+      description_template: |
+        A minimalist {motif_title} line-art print in a warm
+        {palette_title} colour palette - cozy autumn wall art for living
+        rooms, entryways, and kitchens.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Ready to print at home, at a local print shop, or order framed
+
+        This is a digital file - no physical item will be shipped.
+        For personal use only; not for resale or redistribution of the file.
+      tags:
+        - fall wall art
+        - autumn decor
+        - leaf print
+        - pumpkin decor
+        - minimalist decor
+        - printable art
+        - digital download
+        - farmhouse decor
+        - instant download
+        - wall art print
+        - cozy home decor
+        - october decor
+
+  halloween_apparel_graphics:
+    type: apparel_graphic
+    product_mode: pod
+    palettes: [terracotta_boho, clay_rust, charcoal_mono]
+    motifs: [ghost, bat, witch_hat, black_cat, moon_stars, pumpkin]
+    texts:
+      - "Boo"
+      - "Spooky Season"
+      - "Basic Witch"
+      - "Trick or Treat Y'all"
+      - "Witchy Vibes Only"
+      - "Happy Haunting"
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        "{text}" Halloween {motif_title} Graphic | Funny Halloween Shirt
+        Design
+      description_template: |
+        A bold "{text}" Halloween graphic featuring a minimalist
+        {motif_title} icon - printed on soft, comfortable apparel or
+        wrapped around a mug. Great for Halloween parties, fall
+        get-togethers, or everyday spooky-season style.
+
+        Available in multiple product types and sizes - check the variant
+        options on this listing.
+      tags:
+        - halloween shirt
+        - spooky season
+        - funny halloween
+        - fall sweatshirt
+        - halloween gift
+        - trick or treat
+        - halloween mug
+        - witch shirt
+        - pumpkin shirt
+        - fall graphic tee
+        - halloween party
+        - autumn apparel
+
+  fall_apparel_graphics:
+    type: apparel_graphic
+    product_mode: pod
+    palettes: [terracotta_boho, clay_rust, sage_minimal]
+    motifs: [pumpkin, leaf]
+    texts:
+      - "Hello Fall"
+      - "Pumpkin Spice Szn"
+      - "Cozy Season"
+      - "Fall Vibes Only"
+      - "Grateful & Cozy"
+      - "But First, Coffee"
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        "{text}" Fall {motif_title} Graphic | Cozy Autumn Shirt Design
+      description_template: |
+        A bold "{text}" fall graphic featuring a minimalist {motif_title}
+        icon - printed on soft, comfortable apparel or wrapped around a
+        mug. Great for pumpkin patches, football season, or everyday
+        autumn style.
+
+        Available in multiple product types and sizes - check the variant
+        options on this listing.
+      tags:
+        - fall shirt
+        - pumpkin spice
+        - cozy sweatshirt
+        - autumn apparel
+        - fall gift
+        - thanksgiving shirt
+        - fall mug
+        - hello fall
+        - pumpkin shirt
+        - fall graphic tee
+        - autumn gift
+        - cozy season

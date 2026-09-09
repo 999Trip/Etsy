@@ -21,6 +21,7 @@ from pathlib import Path
 import yaml
 
 from design.generators import GENERATORS
+from design.palettes import get_palette
 
 NICHES_PATH = Path(__file__).resolve().parent.parent / "config" / "niches.yaml"
 
@@ -56,11 +57,18 @@ def _render_seo(niche: dict, context: dict) -> dict:
 
 def _iter_variants(niche: dict, count: int, rng: random.Random) -> list[tuple[str, object]]:
     """Return `count` (palette, extra) combinations, covering every
-    combination once before repeating any."""
+    combination once before repeating any. `extra` is a quote dict for
+    quote_poster, a motif name for line_art/pattern, or a (motif, text)
+    pair for apparel_graphic."""
     palettes = list(niche["palettes"])
     rng.shuffle(palettes)
 
-    extras = list(niche["quotes"] if niche["type"] == "quote_poster" else niche["motifs"])
+    if niche["type"] == "quote_poster":
+        extras = list(niche["quotes"])
+    elif niche["type"] == "apparel_graphic":
+        extras = list(itertools.product(niche["motifs"], niche["texts"]))
+    else:
+        extras = list(niche["motifs"])
     rng.shuffle(extras)
 
     combos = list(itertools.product(palettes, extras))
@@ -79,10 +87,13 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
     generator = GENERATORS[niche["type"]]
 
     digital_sizes = niche.get("digital_sizes", [])
-    pod_size = niche.get("pod_size")
+    # pod_sizes is a list because the same design can be published to
+    # several Printify product types (e.g. a t-shirt *and* a mug), which
+    # usually need different print-area aspect ratios.
+    pod_sizes = niche.get("pod_sizes", [])
     product_mode = niche.get("product_mode", "digital")
-    all_sizes = list(dict.fromkeys(digital_sizes + ([pod_size] if pod_size else [])))
-    preview_size = pod_size or (digital_sizes[0] if digital_sizes else all_sizes[0])
+    all_sizes = list(dict.fromkeys(digital_sizes + pod_sizes))
+    preview_size = (digital_sizes + pod_sizes)[0]
 
     out_dir.mkdir(parents=True, exist_ok=True)
     results = []
@@ -90,30 +101,34 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
     for i, (palette_name, extra) in enumerate(_iter_variants(niche, count, rng)):
         design_seed = rng.randint(0, 2**31 - 1)
 
+        base_context = {"palette_title": humanize(palette_name), "quote": "", "quote_short": "", "motif_title": "", "text": ""}
+
         if niche["type"] == "quote_poster":
             quote_text, author = extra["text"], extra.get("author")
             gen_kwargs = {"quote": quote_text, "author": author}
             context = {
+                **base_context,
                 "quote": quote_text,
                 "quote_short": textwrap.shorten(quote_text, width=40, placeholder="..."),
-                "palette_title": humanize(palette_name),
-                "motif_title": "",
             }
             design_slug = _slugify(f"{niche_name}-{quote_text}-{palette_name}-{i}")
+        elif niche["type"] == "apparel_graphic":
+            motif, text = extra
+            gen_kwargs = {"motif": motif, "text": text}
+            context = {**base_context, "motif_title": humanize(motif), "text": text}
+            design_slug = _slugify(f"{niche_name}-{motif}-{text}-{palette_name}-{i}")
         else:
             motif = extra
             gen_kwargs = {"motif": motif}
-            context = {
-                "motif_title": humanize(motif),
-                "palette_title": humanize(palette_name),
-                "quote": "",
-                "quote_short": "",
-            }
+            context = {**base_context, "motif_title": humanize(motif)}
             design_slug = _slugify(f"{niche_name}-{motif}-{palette_name}-{i}")
 
         design_dir = out_dir / design_slug
         files: dict[str, dict[str, str]] = {}
         preview_path = design_dir / "preview.jpg"
+        # Transparent (RGBA) POD canvases render as solid black in a JPG
+        # preview unless flattened onto a plausible garment/mug color first.
+        preview_backdrop = get_palette(palette_name)["bg"]
 
         for size_name in all_sizes:
             canvas = generator(palette_name=palette_name, size_name=size_name, seed=design_seed, **gen_kwargs)
@@ -127,7 +142,7 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
                 files.setdefault("pdf", {})[size_name] = str(pdf_path)
 
             if size_name == preview_size:
-                canvas.save_preview_jpg(preview_path)
+                canvas.save_preview_jpg(preview_path, backdrop=preview_backdrop)
 
         seo = _render_seo(niche, context)
 
@@ -144,7 +159,7 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
             "tags": seo["tags"],
             "price_digital": niche.get("price_digital"),
             "price_pod": niche.get("price_pod"),
-            "pod_size": pod_size,
+            "pod_sizes": pod_sizes,
             "digital_sizes": digital_sizes,
             "preview": str(preview_path),
             "files": files,

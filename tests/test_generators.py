@@ -10,7 +10,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from design.generators import line_art, pattern, quote_poster
+from design.generators import apparel_graphic, line_art, pattern, quote_poster
+from design.motifs import ICON_DRAW_FN
 from design.palettes import PALETTES
 from pipeline.generate import generate_batch, load_niches
 
@@ -37,13 +38,24 @@ class GeneratorSmokeTests(unittest.TestCase):
             canvas = quote_poster.generate(quote="Hi", palette_name=name, size_name="5x7", seed=1)
             self.assertGreater(canvas.w, 0)
 
+    def test_apparel_graphic_is_transparent_and_portrait_or_landscape(self):
+        for motif in ICON_DRAW_FN:
+            portrait = apparel_graphic.generate(motif=motif, text="Boo", size_name="apparel_12x16", seed=1)
+            self.assertEqual(portrait.image.mode, "RGBA")
+            landscape = apparel_graphic.generate(motif=motif, text="Boo", size_name="mug_9x4", seed=1)
+            self.assertEqual(landscape.image.mode, "RGBA")
+
+    def test_apparel_graphic_without_text(self):
+        canvas = apparel_graphic.generate(motif="pumpkin", size_name="apparel_12x16", seed=1)
+        self.assertEqual(canvas.image.mode, "RGBA")
+
 
 class NicheConfigTests(unittest.TestCase):
     def test_niches_yaml_loads_and_matches_known_generator_types(self):
         niches = load_niches()
         self.assertTrue(niches)
         for name, niche in niches.items():
-            self.assertIn(niche["type"], ("quote_poster", "line_art", "pattern"), name)
+            self.assertIn(niche["type"], ("quote_poster", "line_art", "pattern", "apparel_graphic"), name)
             for tag in niche["seo"]["tags"]:
                 self.assertLessEqual(len(tag), 20, f"{name}: tag '{tag}' exceeds Etsy's 20-char limit")
             self.assertLessEqual(len(niche["seo"]["tags"]), 13, f"{name}: more than 13 tags")
@@ -63,6 +75,15 @@ class BatchPipelineTests(unittest.TestCase):
             self.assertTrue(Path(design["preview"]).exists())
             self.assertLessEqual(len(design["tags"]), 13)
             self.assertLessEqual(len(design["title"]), 140)
+
+    def test_generate_batch_apparel_graphic_niche(self):
+        results = generate_batch("halloween_apparel_graphics", 2, self.tmp_dir, seed=1)
+        self.assertEqual(len(results), 2)
+        for design in results:
+            self.assertEqual(design["product_mode"], "pod")
+            self.assertIn("apparel_12x16", design["files"]["png"])
+            self.assertIn("mug_9x4", design["files"]["png"])
+            self.assertTrue(Path(design["preview"]).exists())
 
 
 if __name__ == "__main__":

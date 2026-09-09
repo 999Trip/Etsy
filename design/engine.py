@@ -25,6 +25,10 @@ SIZES_IN: dict[str, tuple[float, float]] = {
     "a4": (8.27, 11.69),
     "square_12x12": (12, 12),
     "5x7": (5, 7),
+    # Print-on-demand graphic areas. These are safe-zone sizes for the
+    # artwork file, not the finished garment/mug dimensions.
+    "apparel_12x16": (12, 16),  # DTG-friendly design area for tees/sweatshirts/hoodies
+    "mug_9x4": (9, 4),  # roughly the wrap-around print area on an 11oz mug
 }
 
 
@@ -41,6 +45,17 @@ class Canvas:
         self.draw = ImageDraw.Draw(self.image)
         self.size = size
 
+    @classmethod
+    def transparent(cls, size: tuple[int, int]) -> "Canvas":
+        """A canvas with a fully transparent background, for print-on-demand
+        artwork (t-shirts, mugs, ...) where the garment/product color shows
+        through everywhere the design doesn't paint."""
+        canvas = cls.__new__(cls)
+        canvas.image = Image.new("RGBA", size, (0, 0, 0, 0))
+        canvas.draw = ImageDraw.Draw(canvas.image)
+        canvas.size = size
+        return canvas
+
     @property
     def w(self) -> int:
         return self.size[0]
@@ -50,7 +65,14 @@ class Canvas:
         return self.size[1]
 
     def add_grain(self, opacity: int = 10, seed: int | None = None) -> None:
-        """Overlay a very subtle noise texture for a less "flat vector" look."""
+        """Overlay a very subtle noise texture for a less "flat vector" look.
+
+        No-op on a transparent (RGBA) canvas - grain is a paper-texture
+        effect for printable posters, not meaningful for a print-on-demand
+        graphic that sits on a garment color.
+        """
+        if self.image.mode == "RGBA":
+            return
         rng = random.Random(seed)
         noise = Image.new("L", self.size)
         noise.putdata([rng.randint(0, 255) for _ in range(self.w * self.h)])
@@ -61,6 +83,8 @@ class Canvas:
 
     def vignette(self, strength: float = 0.15) -> None:
         """Very light edge darkening to add depth to flat backgrounds."""
+        if self.image.mode == "RGBA":
+            return
         mask = Image.new("L", self.size, 0)
         mdraw = ImageDraw.Draw(mask)
         pad = int(min(self.size) * 0.08)
@@ -76,12 +100,22 @@ class Canvas:
 
     def save_pdf(self, path: str | Path, dpi: int = DPI) -> None:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        self.image.save(path, "PDF", resolution=dpi)
+        image = self.image.convert("RGB") if self.image.mode == "RGBA" else self.image
+        image.save(path, "PDF", resolution=dpi)
 
-    def save_preview_jpg(self, path: str | Path, max_dim: int = 2000, quality: int = 87) -> None:
+    def save_preview_jpg(
+        self, path: str | Path, max_dim: int = 2000, quality: int = 87, backdrop: str = "#FFFFFF"
+    ) -> None:
+        """Save a web-sized JPG preview. A transparent (RGBA) canvas is
+        flattened onto ``backdrop`` first - mimicking a light garment/mug
+        color - so print-on-demand previews don't render as solid black."""
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         preview = self.image.copy()
         preview.thumbnail((max_dim, max_dim))
+        if preview.mode == "RGBA":
+            flat = Image.new("RGB", preview.size, backdrop)
+            flat.paste(preview, (0, 0), preview)
+            preview = flat
         preview.convert("RGB").save(path, "JPEG", quality=quality)
 
 

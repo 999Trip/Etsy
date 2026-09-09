@@ -4,14 +4,22 @@ Generates finished, listable products (digital printables and
 print-on-demand physical products) end to end:
 
 1. **Design** - procedurally generate artwork (typography quote posters,
-   boho line art, seamless patterns) with Pillow. No paid AI image
-   generation is used - everything is drawn from code, for free.
+   boho line art, seamless patterns, and apparel/mug graphics) with
+   Pillow. No paid AI image generation is used - everything is drawn from
+   code, for free.
 2. **Digital downloads** - upload the generated files straight to Etsy as
    digital-download listings via the Etsy Open API v3.
 3. **Print-on-demand** - upload the generated artwork to Printify, create
-   a product (poster, t-shirt, mug, etc.), and publish it - which, if
-   your Printify shop has a connected Etsy store, automatically creates
-   the matching Etsy listing too.
+   a product (poster, t-shirt, sweatshirt, mug, etc.), and publish it -
+   which, if your Printify shop has a connected Etsy store, automatically
+   creates the matching Etsy listing too.
+
+Six starter niches ship in `config/niches.yaml`, including trending
+fall/Halloween seasonal collections for both digital wall art and
+Printify apparel/mugs (`halloween_line_art_wall_decor`,
+`halloween_quote_posters`, `fall_line_art_wall_decor`,
+`halloween_apparel_graphics`, `fall_apparel_graphics`) alongside the
+original boho/minimalist starter set.
 
 ```
 design/        procedural art generators (quote posters, line art, patterns)
@@ -44,6 +52,13 @@ No API keys needed for this step - it's pure local image generation.
 python -m pipeline.generate --niche minimalist_quote_posters --count 6 --seed 1
 python -m pipeline.generate --niche boho_line_art_wall_decor --count 8
 python -m pipeline.generate --niche boho_digital_paper_pack --count 10
+
+# Trending fall / Halloween niches
+python -m pipeline.generate --niche halloween_line_art_wall_decor --count 8
+python -m pipeline.generate --niche halloween_quote_posters --count 6
+python -m pipeline.generate --niche fall_line_art_wall_decor --count 6
+python -m pipeline.generate --niche halloween_apparel_graphics --count 10
+python -m pipeline.generate --niche fall_apparel_graphics --count 10
 ```
 
 Each run writes `output/<niche>/<design-slug>/` containing:
@@ -118,11 +133,46 @@ re-run after fixing a mistake partway through a batch.
    shop); omit it to leave products as Printify drafts you can review
    first.
 
+### Publishing the same design to multiple product types (tee + sweatshirt + mug)
+
+The apparel/mug niches (`halloween_apparel_graphics`,
+`fall_apparel_graphics`) render each design at more than one size -
+`apparel_12x16` (portrait, for tees/sweatshirts/hoodies) and `mug_9x4`
+(landscape wrap, for mugs) - specifically so the same batch can become
+several Printify products. Run `publish_pod` once per product type,
+pointing `--print-size` at the matching file and `--blueprint-id` at that
+product's catalog entry:
+
+```bash
+# T-shirts
+python -m pipeline.publish_pod --batch output/halloween_apparel_graphics \
+    --blueprint-id 6 --print-provider-id 1 --variant-ids 12100,12101 \
+    --print-size apparel_12x16 --publish
+
+# Same batch, also as mugs - different blueprint, price, and print file
+python -m pipeline.publish_pod --batch output/halloween_apparel_graphics \
+    --blueprint-id 68 --print-provider-id 27 --variant-ids 33843 \
+    --print-size mug_9x4 --price 14.99 --publish
+```
+
+Each blueprint is tracked separately in `metadata.json`
+(`printify_products.<blueprint_id>`), so re-running with a *different*
+`--blueprint-id` adds a new product instead of being skipped as
+already-published, while re-running with the *same* one is idempotent.
+
+**Dark garments:** the apparel/mug niches only use dark-ink palettes, so
+the artwork is safely visible on white/light/heather product variants out
+of the box. For a black or navy garment variant you'll want an
+inverted/white version of the art - swap `palette["ink"]` for a light
+color when generating that batch, or recolor in Printify's product editor
+after uploading.
+
 ## Notes and caveats
 
 - **No AI image generation.** Every design is drawn procedurally with
-  Pillow (typography layout, geometric line art, tileable patterns).
-  That keeps this pipeline free to run and avoids any AI-generated-content
+  Pillow (typography layout, geometric line art, tileable patterns, icon
+  silhouettes for apparel/mug graphics). That keeps this pipeline free to
+  run and avoids any AI-generated-content
   disclosure/IP questions, but it also means the visual variety is bounded
   by the generators in `design/generators/` - extend them (or add a new
   generator + niche) to expand into new styles.

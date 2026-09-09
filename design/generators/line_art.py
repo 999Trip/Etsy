@@ -10,9 +10,10 @@ import math
 import random
 
 from design.engine import Canvas, size_px
+from design.motifs import ICON_DRAW_FN
 from design.palettes import get_palette
 
-MOTIFS = ("arch", "sun", "wave", "moon_phases")
+MOTIFS = ("arch", "sun", "wave", "moon_phases", *ICON_DRAW_FN.keys())
 
 
 def _draw_arch(canvas: Canvas, palette: dict, rng: random.Random) -> None:
@@ -87,11 +88,21 @@ def _draw_moon_phases(canvas: Canvas, palette: dict, rng: random.Random) -> None
             canvas.draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=palette["ink"], width=max(2, int(min(canvas.size) * 0.004)))
 
 
+def _draw_icon_motif(icon_name):
+    def _draw(canvas: Canvas, palette: dict, rng: random.Random) -> None:
+        cx, cy = canvas.w // 2, canvas.h // 2
+        r = min(canvas.size) * 0.28
+        ICON_DRAW_FN[icon_name](canvas.draw, cx, cy, r, palette["ink"], palette["accent"][0])
+
+    return _draw
+
+
 _MOTIF_FN = {
     "arch": _draw_arch,
     "sun": _draw_sun,
     "wave": _draw_wave,
     "moon_phases": _draw_moon_phases,
+    **{name: _draw_icon_motif(name) for name in ICON_DRAW_FN},
 }
 
 
