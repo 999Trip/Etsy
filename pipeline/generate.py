@@ -58,8 +58,8 @@ def _render_seo(niche: dict, context: dict) -> dict:
 def _iter_variants(niche: dict, count: int, rng: random.Random) -> list[tuple[str, object]]:
     """Return `count` (palette, extra) combinations, covering every
     combination once before repeating any. `extra` is a quote dict for
-    quote_poster, a motif name for line_art/pattern, or a (motif, text)
-    pair for apparel_graphic."""
+    quote_poster, a motif name for line_art/pattern, a variant name for
+    planner, or a (motif, text) pair for apparel_graphic."""
     palettes = list(niche["palettes"])
     rng.shuffle(palettes)
 
@@ -67,6 +67,8 @@ def _iter_variants(niche: dict, count: int, rng: random.Random) -> list[tuple[st
         extras = list(niche["quotes"])
     elif niche["type"] == "apparel_graphic":
         extras = list(itertools.product(niche["motifs"], niche["texts"]))
+    elif niche["type"] == "planner":
+        extras = list(niche["variants"])
     else:
         extras = list(niche["motifs"])
     rng.shuffle(extras)
@@ -101,7 +103,14 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
     for i, (palette_name, extra) in enumerate(_iter_variants(niche, count, rng)):
         design_seed = rng.randint(0, 2**31 - 1)
 
-        base_context = {"palette_title": humanize(palette_name), "quote": "", "quote_short": "", "motif_title": "", "text": ""}
+        base_context = {
+            "palette_title": humanize(palette_name),
+            "quote": "",
+            "quote_short": "",
+            "motif_title": "",
+            "text": "",
+            "variant_title": "",
+        }
 
         if niche["type"] == "quote_poster":
             quote_text, author = extra["text"], extra.get("author")
@@ -117,6 +126,12 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
             gen_kwargs = {"motif": motif, "text": text}
             context = {**base_context, "motif_title": humanize(motif), "text": text}
             design_slug = _slugify(f"{niche_name}-{motif}-{text}-{palette_name}-{i}")
+        elif niche["type"] == "planner":
+            variant = extra
+            context = {**base_context, "variant_title": humanize(variant)}
+            header = niche["header_template"].format(**context)
+            gen_kwargs = {"template": niche["planner_template"], "header": header}
+            design_slug = _slugify(f"{niche_name}-{variant}-{palette_name}-{i}")
         else:
             motif = extra
             gen_kwargs = {"motif": motif}

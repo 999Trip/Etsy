@@ -351,3 +351,150 @@ niches:
         - fall graphic tee
         - autumn gift
         - cozy season
+
+  # --- Planners / trackers (fastest-growing digital category per 2026 --
+  # --- trend research - see design/generators/planner.py) -------------
+
+  weekly_planner_printable:
+    type: planner
+    product_mode: digital
+    planner_template: weekly_planner
+    header_template: "{variant_title} Weekly Planner"
+    palettes: [terracotta_boho, clay_rust, sage_minimal, charcoal_mono]
+    variants: ["Cozy Autumn", "Fall Harvest", "Pumpkin Season", "Autumn Aesthetic", "Cottagecore Fall"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        {variant_title} Weekly Planner Printable | Undated Productivity
+        Planner | Digital Download PDF
+      description_template: |
+        An undated {variant_title} weekly planner - Monday through Sunday
+        columns for tasks, plus a top-priorities section. Print as many
+        as you need, any time of year.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+        - Low-ink, print-friendly design
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - weekly planner
+        - printable planner
+        - undated planner
+        - fall planner
+        - digital download
+        - planner pdf
+        - adhd planner
+        - daily planner
+        - instant download
+        - cozy planner
+        - autumn planner
+        - planner printable
+
+  fall_budget_tracker_printable:
+    type: planner
+    product_mode: digital
+    planner_template: budget_tracker
+    header_template: "{variant_title} Budget Tracker"
+    palettes: [terracotta_boho, clay_rust, sage_minimal]
+    variants: ["Fall Monthly", "Cozy Season", "Autumn Harvest", "Holiday Prep", "Pumpkin Spice Season"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        {variant_title} Budget Tracker Printable | Monthly Finance Planner
+        | Digital Download PDF
+      description_template: |
+        A {variant_title} budget tracker - income, categorized expenses,
+        and a running total so you always know what's left. A simple,
+        low-ink layout that's easy to fill in by hand.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - budget tracker
+        - budget planner
+        - finance printable
+        - money tracker
+        - expense tracker
+        - digital download
+        - budget pdf
+        - savings tracker
+        - monthly budget
+        - instant download
+        - fall budget
+        - printable planner
+
+  habit_tracker_printable:
+    type: planner
+    product_mode: digital
+    planner_template: habit_tracker
+    header_template: "{variant_title} Habit Tracker"
+    palettes: [sage_minimal, terracotta_boho, blush_neutral]
+    variants: ["Fall Wellness", "Autumn Self-Care", "Cozy Habit", "Fall Reset", "Monthly Wellness"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        {variant_title} Habit Tracker Printable | Monthly Habit & Wellness
+        Planner | Digital Download PDF
+      description_template: |
+        A {variant_title} habit tracker - a full month grid to check off
+        up to 10 daily habits at a glance. Great for building routines
+        around wellness, self-care, or any goal.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - habit tracker
+        - wellness planner
+        - self care planner
+        - monthly tracker
+        - digital download
+        - habit tracker pdf
+        - printable tracker
+        - goal tracker
+        - instant download
+        - fall wellness
+        - mental health pdf
+        - wellness tracker
+
+  checklist_printable:
+    type: planner
+    product_mode: digital
+    planner_template: checklist
+    header_template: "{variant_title} Checklist"
+    palettes: [terracotta_boho, charcoal_mono, sage_minimal]
+    variants: ["Fall Bucket List", "Packing", "Holiday Prep", "Fall Cleaning", "Cozy Season To-Do"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 3.00
+    seo:
+      title_template: >-
+        {variant_title} Checklist Printable | Printable To-Do List |
+        Digital Download PDF
+      description_template: |
+        A clean {variant_title} checklist - 20 checkbox line items across
+        two columns, ready to fill in by hand. Simple enough for any list.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - checklist printable
+        - to do list
+        - printable list
+        - digital download
+        - fall checklist
+        - bucket list
+        - packing list
+        - instant download
+        - planner insert
+        - task list pdf
+        - organizer pdf
+        - cozy planner

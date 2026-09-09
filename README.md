@@ -4,9 +4,9 @@ Generates finished, listable products (digital printables and
 print-on-demand physical products) end to end:
 
 1. **Design** - procedurally generate artwork (typography quote posters,
-   boho line art, seamless patterns, and apparel/mug graphics) with
-   Pillow. No paid AI image generation is used - everything is drawn from
-   code, for free.
+   boho line art, seamless patterns, apparel/mug graphics, and printable
+   planners/trackers) with Pillow. No paid AI image generation is used -
+   everything is drawn from code, for free.
 2. **Digital downloads** - upload the generated files straight to Etsy as
    digital-download listings via the Etsy Open API v3.
 3. **Print-on-demand** - upload the generated artwork to Printify, create
@@ -14,12 +14,26 @@ print-on-demand physical products) end to end:
    which, if your Printify shop has a connected Etsy store, automatically
    creates the matching Etsy listing too.
 
-Six starter niches ship in `config/niches.yaml`, including trending
-fall/Halloween seasonal collections for both digital wall art and
-Printify apparel/mugs (`halloween_line_art_wall_decor`,
-`halloween_quote_posters`, `fall_line_art_wall_decor`,
-`halloween_apparel_graphics`, `fall_apparel_graphics`) alongside the
-original boho/minimalist starter set.
+`config/niches.yaml` ships starter niches picked from actual 2026 Etsy/POD
+trend research, not guesswork - see the comments in that file for what
+each one targets:
+
+- **Fall/Halloween wall art & apparel** - `halloween_line_art_wall_decor`,
+  `halloween_quote_posters`, `fall_line_art_wall_decor`,
+  `halloween_apparel_graphics`, `fall_apparel_graphics`. Apparel designs
+  use a worn/distressed texture by default (`Canvas.add_distress`) to
+  match 2026's dominant vintage-Halloween aesthetic, plus a
+  `pastel_cuteoween` palette for the trending soft-pastel look.
+- **Planners & trackers** - `weekly_planner_printable`,
+  `fall_budget_tracker_printable`, `habit_tracker_printable`,
+  `checklist_printable`. Research showed planners/templates are Etsy's
+  *fastest-growing* digital category in 2026, ahead of decorative wall
+  art - these are functional documents (tables, grids, checkboxes) via
+  `design/generators/planner.py`, deliberately low-ink (plain white page,
+  colored lines/text only) since that's a trend in its own right.
+- **Original boho/minimalist starter set** -
+  `boho_line_art_wall_decor`, `minimalist_quote_posters`,
+  `boho_digital_paper_pack`.
 
 ```
 design/        procedural art generators (quote posters, line art, patterns)
@@ -59,6 +73,12 @@ python -m pipeline.generate --niche halloween_quote_posters --count 6
 python -m pipeline.generate --niche fall_line_art_wall_decor --count 6
 python -m pipeline.generate --niche halloween_apparel_graphics --count 10
 python -m pipeline.generate --niche fall_apparel_graphics --count 10
+
+# Planners / trackers (fastest-growing digital category)
+python -m pipeline.generate --niche weekly_planner_printable --count 5
+python -m pipeline.generate --niche fall_budget_tracker_printable --count 5
+python -m pipeline.generate --niche habit_tracker_printable --count 5
+python -m pipeline.generate --niche checklist_printable --count 5
 ```
 
 Each run writes `output/<niche>/<design-slug>/` containing:
