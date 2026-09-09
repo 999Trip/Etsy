@@ -196,6 +196,18 @@ inverted/white version of the art - swap `palette["ink"]` for a light
 color when generating that batch, or recolor in Printify's product editor
 after uploading.
 
+**Previewing before Printify is set up:** `pipeline.mockup_preview`
+composites a design onto flat t-shirt/hoodie/sweatshirt/mug shapes
+(`design/mockup.py`) - not photorealistic, but the real print pixels at
+real scale/placement, so you can sanity-check a design before creating
+any Printify products:
+
+```bash
+python -m pipeline.mockup_preview \
+    --design output/halloween_apparel_graphics/<slug> \
+    --garment black
+```
+
 ## 5. Illustrated designs via Canva (optional)
 
 Niches with `type: canva` in `config/niches.yaml` (currently

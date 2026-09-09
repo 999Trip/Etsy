@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from design import mockup
 from design.generators import apparel_graphic, line_art, pattern, planner, quote_poster
 from design.motifs import ICON_DRAW_FN
 from design.palettes import PALETTES
@@ -54,6 +55,19 @@ class GeneratorSmokeTests(unittest.TestCase):
             canvas = planner.generate(template=template, header="A Reasonably Long Header Title Here", size_name="letter_8.5x11")
             self.assertEqual(canvas.image.mode, "RGB")
             self.assertGreater(canvas.w, 0)
+
+    def test_mockups_render_for_every_product_type(self):
+        design = apparel_graphic.generate(motif="ghost", text="Boo", size_name="apparel_12x16", seed=1)
+        mug_design = apparel_graphic.generate(motif="ghost", text="Boo", size_name="mug_9x4", seed=1)
+        for fn, img in [
+            (mockup.mockup_tshirt, design.image),
+            (mockup.mockup_hoodie, design.image),
+            (mockup.mockup_sweatshirt, design.image),
+            (mockup.mockup_mug, mug_design.image),
+        ]:
+            result = fn(img)
+            self.assertEqual(result.mode, "RGB")
+            self.assertEqual(result.size, mockup.CANVAS_SIZE)
 
 
 class NicheConfigTests(unittest.TestCase):
