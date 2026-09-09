@@ -8,12 +8,29 @@ once on the machine where you'll actually use a browser:
 
 It will:
   1. Print an authorization URL - open it in your browser and approve access.
-  2. Etsy redirects to a local server this script starts (http://localhost:3003/oauth/redirect).
+  2. Etsy redirects to a local server this script starts
+     (https://localhost:3003/oauth/redirect - see note below on why this
+     has to be https, even for localhost).
   3. The script exchanges the returned code for an access + refresh token
      and saves them to .etsy_token.json (gitignored) in the repo root.
 
 Requires ETSY_KEYSTRING (your app's "Keystring"/client ID) to be set in
-.env - register an app at https://www.etsy.com/developers/register first.
+.env - register an app at https://www.etsy.com/developers/register first,
+then add this exact redirect URI to it at
+https://www.etsy.com/developers/your-apps (character-for-character,
+including the "https"; Etsy's docs are explicit that plain http fails,
+with no exception for localhost - https://developers.etsy.com/documentation/essentials/authentication/):
+
+    https://localhost:3003/oauth/redirect
+
+Since there's no real HTTPS cert for "localhost", this script generates
+a throwaway self-signed one (via `openssl`, cached in the repo root as
+.etsy_oauth_cert.pem/.etsy_oauth_key.pem, gitignored) to terminate TLS
+for that one local redirect. Your browser will show a privacy/security
+warning when it lands on that page after you approve access - that's
+expected for a self-signed cert; click through it (e.g. "Advanced" ->
+"Proceed to localhost"). The certificate is used only to receive this
+one redirect on your own machine; it isn't sent anywhere.
 
 integrations/etsy_client.py reads .etsy_token.json and refreshes the
 access token automatically using the stored refresh token, so this only
@@ -27,6 +44,8 @@ import http.server
 import json
 import os
 import secrets
+import ssl
+import subprocess
 import threading
 import time
 import urllib.parse
@@ -39,10 +58,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN_PATH = Path(__file__).resolve().parent.parent / ".etsy_token.json"
+CERT_PATH = Path(__file__).resolve().parent.parent / ".etsy_oauth_cert.pem"
+KEY_PATH = Path(__file__).resolve().parent.parent / ".etsy_oauth_key.pem"
 AUTH_URL = "https://www.etsy.com/oauth/connect"
 TOKEN_URL = "https://api.etsy.com/v3/public/oauth/token"
 REDIRECT_PORT = 3003
-REDIRECT_URI = os.environ.get("ETSY_REDIRECT_URI", f"http://localhost:{REDIRECT_PORT}/oauth/redirect")
+REDIRECT_URI = os.environ.get("ETSY_REDIRECT_URI", f"https://localhost:{REDIRECT_PORT}/oauth/redirect")
 
 # Scopes needed to create/manage listings (both digital and physical) and
 # read shop info. See https://developers.etsy.com/documentation/essentials/authentication#scopes
@@ -51,6 +72,23 @@ DEFAULT_SCOPES = ["listings_r", "listings_w", "listings_d", "shops_r", "transact
 
 def _b64url(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).decode("ascii").rstrip("=")
+
+
+def _ensure_self_signed_cert() -> None:
+    """Generate a throwaway self-signed TLS cert for localhost if one
+    isn't already cached, via the system `openssl` CLI (no extra Python
+    dependency for something used exactly once per machine)."""
+    if CERT_PATH.exists() and KEY_PATH.exists():
+        return
+    subprocess.run(
+        [
+            "openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+            "-keyout", str(KEY_PATH), "-out", str(CERT_PATH),
+            "-days", "3650", "-subj", "/CN=localhost",
+        ],
+        check=True,
+        capture_output=True,
+    )
 
 
 class _CallbackHandler(http.server.BaseHTTPRequestHandler):
@@ -93,13 +131,22 @@ def run_oauth_flow(scopes: list[str] | None = None) -> dict:
     )
     auth_url = f"{AUTH_URL}?{query}"
 
+    _ensure_self_signed_cert()
     server = http.server.HTTPServer(("localhost", REDIRECT_PORT), _CallbackHandler)
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ssl_context.load_cert_chain(certfile=str(CERT_PATH), keyfile=str(KEY_PATH))
+    server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
     thread = threading.Thread(target=server.handle_request, daemon=True)
     thread.start()
 
     print("Open this URL in your browser and approve access:\n")
     print(auth_url)
     print(f"\nWaiting for the redirect on {REDIRECT_URI} ...")
+    print(
+        "(Your browser will show a privacy/security warning when it lands back on "
+        "localhost - that's expected, it's a self-signed cert used only for this one "
+        "local redirect. Click through it, e.g. 'Advanced' -> 'Proceed to localhost'.)"
+    )
     try:
         webbrowser.open(auth_url)
     except Exception:

@@ -117,8 +117,21 @@ in the pipeline scripts is hardcoded to a specific niche.
 
 Etsy requires OAuth (not just an API key) for anything that writes data.
 
-1. Register an app at <https://www.etsy.com/developers/register> and add
-   `http://localhost:3003/oauth/redirect` as a redirect URI.
+1. Register an app at <https://www.etsy.com/developers/register>, then
+   add this exact redirect URI to it at
+   <https://www.etsy.com/developers/your-apps> (not the app's "Settings"
+   link in the API console sidebar - that's a shop-level Developer Mode
+   toggle, unrelated):
+   ```
+   https://localhost:3003/oauth/redirect
+   ```
+   Etsy's docs are explicit that this must be `https`, character for
+   character, with no exception for localhost - plain `http` fails.
+   Since there's no real cert for "localhost", `integrations/etsy_oauth.py`
+   generates a throwaway self-signed one automatically (via `openssl`,
+   cached as `.etsy_oauth_cert.pem`/`.etsy_oauth_key.pem`, gitignored) -
+   your browser will show a privacy warning when it lands back on
+   localhost after you approve access; that's expected, click through it.
 2. Put the app's Keystring in `.env` as `ETSY_KEYSTRING`, and your shop id
    (from Shop Manager > Settings, or your shop's URL) as `ETSY_SHOP_ID`.
 3. Authorize once, in a real browser:
