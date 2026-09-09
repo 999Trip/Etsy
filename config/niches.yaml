@@ -271,7 +271,10 @@ niches:
   halloween_apparel_graphics:
     type: apparel_graphic
     product_mode: pod
-    palettes: [terracotta_boho, clay_rust, charcoal_mono]
+    # pastel_cuteoween covers the 2026 "cute-o-ween" trend (soft
+    # lavender/muted-orange, popular for kids & family matching sets)
+    # alongside the classic warm/dark palettes.
+    palettes: [terracotta_boho, clay_rust, charcoal_mono, pastel_cuteoween]
     motifs: [ghost, bat, witch_hat, black_cat, moon_stars, pumpkin]
     texts:
       - "Boo"
@@ -280,6 +283,7 @@ niches:
       - "Trick or Treat Y'all"
       - "Witchy Vibes Only"
       - "Happy Haunting"
+      - "This Is My Costume"
     pod_sizes: [apparel_12x16, mug_9x4]
     price_pod: 24.00
     seo:
@@ -306,7 +310,7 @@ niches:
         - pumpkin shirt
         - fall graphic tee
         - halloween party
-        - autumn apparel
+        - pastel halloween
 
   fall_apparel_graphics:
     type: apparel_graphic
@@ -320,6 +324,7 @@ niches:
       - "Fall Vibes Only"
       - "Grateful & Cozy"
       - "But First, Coffee"
+      - "Pumpkin Spice and Everything Nice"
     pod_sizes: [apparel_12x16, mug_9x4]
     price_pod: 24.00
     seo:

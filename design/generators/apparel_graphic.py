@@ -11,6 +11,12 @@ recolor for you when you place the design.
 Automatically lays out icon + text stacked (portrait/square canvases,
 e.g. an apparel print area) or side-by-side (landscape canvases, e.g. a
 mug wrap) based on the chosen size's aspect ratio.
+
+Distress texture defaults on: a worn, screen-printed-onto-fabric look is
+closer to the vintage/retro Halloween & fall apparel aesthetic that's
+actually trending than a crisp flat-vector icon (see design/motifs.py's
+plain outline style). Pass distressed=False for a clean, undistressed
+version of the same design.
 """
 from __future__ import annotations
 
@@ -27,6 +33,7 @@ def generate(
     text: str | None = None,
     size_name: str = "apparel_12x16",
     seed: int | None = None,
+    distressed: bool = True,
 ) -> Canvas:
     palette = get_palette(palette_name)
     size = size_px(size_name)
@@ -63,5 +70,8 @@ def generate(
             line_spacing=0.3,
         )
         draw_centered_multiline(canvas, wrapped, font, ink, center, spacing)
+
+    if distressed:
+        canvas.add_distress(seed=seed)
 
     return canvas

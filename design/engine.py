@@ -10,7 +10,7 @@ from __future__ import annotations
 import random
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 # Etsy printables are conventionally sold at 300 DPI. Physical (POD)
 # prints use the same DPI; the actual pixel size just needs to match
@@ -79,6 +79,31 @@ class Canvas:
         noise = noise.point(lambda p: 128 + (p - 128) * opacity // 100)
         noise_rgb = Image.merge("RGB", (noise, noise, noise))
         self.image = Image.blend(self.image, noise_rgb, opacity / 400)
+        self.draw = ImageDraw.Draw(self.image)
+
+    def add_distress(self, intensity: float = 0.35, seed: int | None = None) -> None:
+        """Rough up a transparent canvas's alpha channel with a blotchy
+        noise mask - the worn, screen-printed-onto-fabric look behind the
+        vintage/retro Halloween & fall apparel trend (as opposed to a
+        crisp flat-vector print). No-op on an opaque (RGB) canvas, where
+        ``add_grain`` is the equivalent paper-texture effect.
+        """
+        if self.image.mode != "RGBA":
+            return
+        rng = random.Random(seed)
+        # Low-res noise, blurred and upscaled, reads as mottled blotches
+        # rather than per-pixel static.
+        small = (max(1, self.w // 40), max(1, self.h // 40))
+        noise = Image.new("L", small)
+        noise.putdata([rng.randint(0, 255) for _ in range(small[0] * small[1])])
+        noise = noise.resize(self.size, Image.BILINEAR).filter(ImageFilter.GaussianBlur(2))
+
+        floor = int(255 * (1 - intensity))
+        mask = noise.point(lambda p: floor + int(intensity * p))
+
+        r, g, b, a = self.image.split()
+        a = ImageChops.multiply(a, mask)
+        self.image = Image.merge("RGBA", (r, g, b, a))
         self.draw = ImageDraw.Draw(self.image)
 
     def vignette(self, strength: float = 0.15) -> None:

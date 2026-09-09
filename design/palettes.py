@@ -43,6 +43,13 @@ PALETTES: dict[str, dict] = {
         "ink": "#5A2E20",
         "accent": ["#B5502D", "#D9A05B", "#7A6A53"],
     },
+    # Soft muted lavender/orange - the "cute-o-ween" palette replacing
+    # classic black-and-orange for kids/family Halloween apparel.
+    "pastel_cuteoween": {
+        "bg": "#F7F0EC",
+        "ink": "#6B4B6E",
+        "accent": ["#E8B4C8", "#B8A9D9", "#F2C6A0"],
+    },
 }
 
 
