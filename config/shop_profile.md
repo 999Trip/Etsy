@@ -42,6 +42,23 @@ A short "about" blurb for the shop's About page or bio field:
 > the seasons; some things (a good pun, a warm color palette) never go
 > out of style.
 
+## Shop icon and banner
+
+Generated via Canva, matching the "wander" (compass/mountain) + "roots"
+(tree roots) identity, at Etsy's exact current spec sizes:
+
+- `shop_assets/shop_icon_500x500.png` - 500x500px shop icon
+  (Canva design: [edit](https://www.canva.com/d/BbXClHErEEa6_SS))
+- `shop_assets/shop_banner_3360x840.png` - 3360x840px shop banner, 4:1
+  ratio (Canva design: [edit](https://www.canva.com/d/ttun_Xghjz3oZyC))
+
+Upload both from Shop Manager: the "Customize your shop" checklist on
+your dashboard has "Add a logo" and "Create a banner" links directly to
+the right upload spots (also reachable via Settings > Info &
+Appearance). Both were exported on Canva's free plan (no transparency
+available there), with a warm cream/terracotta background that matches
+the shop palette either way.
+
 ## Naming rationale
 
 Picked to be broad enough to cover every product line already in this
