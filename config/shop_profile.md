@@ -42,6 +42,37 @@ A short "about" blurb for the shop's About page or bio field:
 > the seasons; some things (a good pun, a warm color palette) never go
 > out of style.
 
+## About section: headline and story
+
+Etsy's About page has a separate "headline" (short) and "story" (longer
+narrative) field from the shop bio above.
+
+**Headline:**
+```
+Vintage-inspired designs for wandering souls with deep roots
+```
+
+**Story:**
+```
+Wander Roots Co. started with a simple idea: the best things blend a
+love of adventure with a love of home. Every design here leans into
+that duality - retro typography, distressed textures, and illustrated
+motifs (compasses, mountains, roots) that feel both nostalgic and new.
+
+Everything is designed in-house and brought to life through
+print-on-demand and made-to-order printing, so nothing sits in a
+warehouse waiting to be discovered - it's made when you order it, just
+for you.
+
+New collections drop with the seasons, but some things - a good pun, a
+warm color palette, a design that feels like it's always existed - never
+go out of style. Thanks for stopping by.
+```
+
+Written around the shop's concept and production model rather than
+invented personal history - worth personalizing further to sound more
+like the actual owner.
+
 ## Shop icon and banner
 
 Generated via Canva, matching the "wander" (compass/mountain) + "roots"
