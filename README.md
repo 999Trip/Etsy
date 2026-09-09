@@ -5,17 +5,21 @@ print-on-demand physical products) end to end:
 
 1. **Design** - two sources feed into the same pipeline:
    - **Procedural** (`design/generators/`) - typography quote posters,
-     boho line art, seamless patterns, and printable planners/trackers,
-     drawn with Pillow, for free, no paid AI model in the loop.
+     boho line art, seamless/scattered patterns, and printable
+     planners/trackers, drawn with Pillow, for free, no paid AI model in
+     the loop. This now includes all-over illustrated patterns for
+     tumbler/mug wraps (`design/generators/pattern.py`'s scatter motifs,
+     built from the same icon library as the wall-art line) - an
+     original, non-infringing take on the trending all-over-print
+     tumbler style (not a copy of any specific commercial product).
    - **Canva-generated illustrated designs** - hand-lettered script,
      illustrated characters, distressed vintage textures - styles the
-     procedural generators can't produce. **This is the source for every
-     apparel/mug design now** (see "Illustrated designs via Canva"
-     below) - an earlier flat-icon-silhouette Pillow approach for
-     apparel was tried and dropped for looking cheap on an actual
-     t-shirt mockup; Canva's illustrated "box print" graphics (the whole
-     illustrated rectangle printed on the garment, no background
-     removal needed) looked dramatically better in testing.
+     procedural generators can't produce. **This is the source for
+     box-print apparel/mug designs** (a whole illustrated rectangle
+     printed on the garment - see "Illustrated designs via Canva" below)
+     - an earlier flat-icon-silhouette Pillow approach for this was tried
+     and dropped for looking cheap on an actual t-shirt mockup; Canva's
+     box-print graphics looked dramatically better in testing.
 2. **Digital downloads** - upload the generated files straight to Etsy as
    digital-download listings via the Etsy Open API v3.
 3. **Print-on-demand** - upload the generated artwork to Printify, create
@@ -29,6 +33,10 @@ each one targets:
 
 - **Fall/Halloween wall art (procedural)** - `halloween_line_art_wall_decor`,
   `halloween_quote_posters`, `fall_line_art_wall_decor`.
+- **Fall/Halloween tumbler & mug patterns (procedural)** -
+  `halloween_pattern_tumblers`: all-over scattered-icon wraps (night sky
+  w/ bats, cream w/ cats & pumpkins & ghosts, purple w/ cats & pumpkins &
+  moons, jack-o'-lantern faces) for 40oz tumblers and mugs.
 - **Fall/Halloween illustrated designs (Canva)** -
   `halloween_vintage_posters_canva` / `halloween_vintage_apparel_canva`
   and `fall_vintage_posters_canva` / `fall_vintage_apparel_canva` (same

@@ -29,6 +29,7 @@ SIZES_IN: dict[str, tuple[float, float]] = {
     # artwork file, not the finished garment/mug dimensions.
     "apparel_12x16": (12, 16),  # DTG-friendly design area for tees/sweatshirts/hoodies
     "mug_9x4": (9, 4),  # roughly the wrap-around print area on an 11oz mug
+    "tumbler_9x5": (9, 5),  # approximate wrap print area for a 30-40oz handle tumbler
 }
 
 

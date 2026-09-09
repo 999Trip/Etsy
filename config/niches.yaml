@@ -884,3 +884,41 @@ niches:
         - retro america tee
         - usa gift
         - proud american
+
+  halloween_pattern_tumblers:
+    type: pattern
+    product_mode: pod
+    # All-over scattered-icon wraps for 40oz tumblers and mugs - original
+    # artwork built from our own icon library (design/motifs.py), in the
+    # same visual genre as trending tumbler wraps (starry night w/ bats,
+    # cream w/ cats & pumpkins & ghosts, purple w/ cats & pumpkins &
+    # moons, jack-o'-lantern faces) without copying any specific existing
+    # commercial product's design.
+    palettes: [midnight_gold, terracotta_boho, witchy_purple, pumpkin_orange]
+    motifs: [night_sky, cozy_critters, witchy_purple, jack_o_lanterns]
+    pod_sizes: [mug_9x4, tumbler_9x5]
+    price_pod: 26.00
+    seo:
+      title_template: >-
+        {motif_title} Halloween Pattern | All-Over Print Tumbler & Mug
+        Wrap Design
+      description_template: |
+        A {motif_title} all-over Halloween pattern, wrapped edge to edge
+        on a 40oz tumbler or mug - a bold, colorful print that stands out
+        on the shelf.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - tumbler wrap
+        - halloween tumbler
+        - 40oz tumbler
+        - mug wrap design
+        - halloween mug
+        - pattern design
+        - all over print
+        - spooky pattern
+        - halloween pattern
+        - cup wrap design
+        - witchy tumbler
+        - pumpkin tumbler

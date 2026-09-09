@@ -50,6 +50,20 @@ PALETTES: dict[str, dict] = {
         "ink": "#6B4B6E",
         "accent": ["#E8B4C8", "#B8A9D9", "#F2C6A0"],
     },
+    # Deep witchy purple - for all-over scattered Halloween patterns
+    # (tumbler/mug wraps): black cats, pumpkins, and moons on a purple
+    # night sky.
+    "witchy_purple": {
+        "bg": "#2E1A47",
+        "ink": "#F4E9D8",
+        "accent": ["#E8792E", "#8C5FA8", "#F4E9D8"],
+    },
+    # Solid pumpkin orange - for jack-o'-lantern-face scattered patterns.
+    "pumpkin_orange": {
+        "bg": "#D9782F",
+        "ink": "#2A1810",
+        "accent": ["#2A1810", "#F4E9D8", "#B5502D"],
+    },
 }
 
 

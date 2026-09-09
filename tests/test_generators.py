@@ -70,6 +70,17 @@ class GeneratorSmokeTests(unittest.TestCase):
             self.assertEqual(result.mode, "RGB")
             self.assertEqual(result.size, mockup.CANVAS_SIZE)
 
+    def test_tumbler_and_mug_wrap_mockups_render(self):
+        pattern_design = pattern.generate(motif="night_sky", palette_name="midnight_gold", size_name="tumbler_9x5", seed=1)
+        mug_pattern = pattern.generate(motif="night_sky", palette_name="midnight_gold", size_name="mug_9x4", seed=1)
+        for fn, img in [
+            (mockup.mockup_tumbler, pattern_design.image),
+            (lambda i: mockup.mockup_mug(i, cover=True), mug_pattern.image),
+        ]:
+            result = fn(img)
+            self.assertEqual(result.mode, "RGB")
+            self.assertEqual(result.size, mockup.CANVAS_SIZE)
+
 
 class NicheConfigTests(unittest.TestCase):
     def test_niches_yaml_loads_and_matches_known_generator_types(self):

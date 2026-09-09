@@ -203,6 +203,51 @@ def draw_black_cat(draw: ImageDraw.ImageDraw, cx: float, cy: float, r: float, in
     )
 
 
+def draw_jack_o_lantern_face(draw: ImageDraw.ImageDraw, cx: float, cy: float, r: float, ink, accent=None) -> None:
+    """A carved jack-o'-lantern face only (no ridged body) - a flat solid
+    pumpkin silhouette with triangle eyes/nose and a jagged grin in a
+    second color, for all-over scattered patterns (tumbler wraps, digital
+    paper) rather than as a standalone hero icon."""
+    face_color = accent or "#000000"
+    body_w, body_h = r * 1.7, r * 1.4
+    draw.ellipse([cx - body_w / 2, cy - body_h / 2, cx + body_w / 2, cy + body_h / 2], fill=ink)
+
+    eye_w, eye_h = r * 0.26, r * 0.3
+    for dx in (-0.32, 0.32):
+        ex = cx + dx * r
+        ey = cy - r * 0.18
+        draw.polygon([(ex - eye_w / 2, ey + eye_h / 2), (ex + eye_w / 2, ey + eye_h / 2), (ex, ey - eye_h / 2)], fill=face_color)
+
+    nose_w = r * 0.16
+    draw.polygon(
+        [(cx - nose_w / 2, cy + r * 0.05), (cx + nose_w / 2, cy + r * 0.05), (cx, cy - r * 0.12)],
+        fill=face_color,
+    )
+
+    mouth_y, mouth_w = cy + r * 0.32, r * 0.95
+    teeth = 5
+    pts = [(cx - mouth_w / 2, mouth_y)]
+    for i in range(teeth):
+        x = cx - mouth_w / 2 + mouth_w * (i + 0.5) / teeth
+        y = mouth_y + (r * 0.22 if i % 2 == 0 else 0)
+        pts.append((x, y))
+    pts.append((cx + mouth_w / 2, mouth_y))
+    draw.polygon(pts, fill=face_color)
+
+    stem_color = ink
+    draw.polygon(
+        [(cx - r * 0.08, cy - body_h / 2), (cx + r * 0.08, cy - body_h / 2), (cx + r * 0.05, cy - body_h / 2 - r * 0.22), (cx - r * 0.05, cy - body_h / 2 - r * 0.22)],
+        fill=stem_color,
+    )
+
+
+def draw_star_sparkle(draw: ImageDraw.ImageDraw, cx: float, cy: float, r: float, ink, accent=None) -> None:
+    """A small 8-point sparkle/star - background texture for night-sky
+    scattered patterns, sharing the standard icon signature so it can be
+    mixed into a scatter pattern's icon list."""
+    _star(draw, cx, cy, r, ink)
+
+
 ICON_DRAW_FN: dict[str, Callable] = {
     "pumpkin": draw_pumpkin,
     "ghost": draw_ghost,
@@ -211,6 +256,8 @@ ICON_DRAW_FN: dict[str, Callable] = {
     "moon_stars": draw_moon_stars,
     "witch_hat": draw_witch_hat,
     "black_cat": draw_black_cat,
+    "jack_o_lantern_face": draw_jack_o_lantern_face,
+    "star_sparkle": draw_star_sparkle,
 }
 
 

@@ -59,6 +59,26 @@ def _paste_design(base: Image.Image, design: Image.Image, box: tuple[int, int, i
     base.alpha_composite(d, (px, py))
 
 
+def _paste_design_cover(base: Image.Image, design: Image.Image, box: tuple[int, int, int, int]) -> None:
+    """Crop+fill `box` with `design` (for an all-over wrap pattern, where
+    the whole visible surface should be covered edge to edge, unlike a
+    centered box-print graphic - see `_paste_design`)."""
+    x0, y0, x1, y1 = box
+    box_w, box_h = x1 - x0, y1 - y0
+    d = design.convert("RGBA")
+    src_ratio, box_ratio = d.width / d.height, box_w / box_h
+    if src_ratio > box_ratio:
+        new_w = int(d.height * box_ratio)
+        x_off = (d.width - new_w) // 2
+        d = d.crop((x_off, 0, x_off + new_w, d.height))
+    else:
+        new_h = int(d.width / box_ratio)
+        y_off = (d.height - new_h) // 2
+        d = d.crop((0, y_off, d.width, y_off + new_h))
+    d = d.resize((int(box_w), int(box_h)), Image.LANCZOS)
+    base.alpha_composite(d, (int(x0), int(y0)))
+
+
 def _draw_garment_body(draw: ImageDraw.ImageDraw, w: int, h: int, color, bg_color, sleeve_frac: float = 0.16) -> None:
     """Torso as a rounded rectangle, short sleeves as small rounded-rect
     tabs overlapping its top corners, and a small neckline notch punched
@@ -173,13 +193,26 @@ def mockup_hoodie(design: Image.Image, garment: str = "heather_gray", design_sca
     return canvas.convert("RGB")
 
 
-def mockup_mug(design: Image.Image, garment: str = "white") -> Image.Image:
+def mockup_mug(design: Image.Image, garment: str = "white", cover: bool = False) -> Image.Image:
+    """`cover=False` (default) centers `design` as a smallish box-print
+    patch, as apparel_graphic/canva box-print designs expect. `cover=True`
+    wraps it edge to edge across the whole visible mug face instead, for
+    an all-over pattern design (see design/generators/pattern.py's
+    scatter motifs) - matching how that kind of design actually prints."""
     canvas, draw, w, h = _new_ss_canvas("#E8E6E0")
     color = GARMENT_COLORS[garment]
     outline = _shade(color, 0.2) if garment != "black" else "#3A3A3A"
 
     body_box = [w * 0.28, h * 0.32, w * 0.68, h * 0.74]
-    draw.rounded_rectangle(body_box, radius=int(w * 0.018), fill=color, outline=outline, width=int(w * 0.004))
+    if cover:
+        mask = Image.new("L", (w, h), 0)
+        ImageDraw.Draw(mask).rounded_rectangle(body_box, radius=int(w * 0.018), fill=255)
+        design_layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        _paste_design_cover(design_layer, design, body_box)
+        canvas.paste(design_layer, (0, 0), mask)
+        draw.rounded_rectangle(body_box, radius=int(w * 0.018), outline=outline, width=int(w * 0.004))
+    else:
+        draw.rounded_rectangle(body_box, radius=int(w * 0.018), fill=color, outline=outline, width=int(w * 0.004))
 
     handle_r = w * 0.075
     handle_cy = (body_box[1] + body_box[3]) / 2
@@ -200,11 +233,53 @@ def mockup_mug(design: Image.Image, garment: str = "white") -> Image.Image:
     canvas.alpha_composite(shade)
 
     canvas = _finish(canvas)
-    scale = 1 / _SS
-    fbody_box = [c * scale for c in body_box]
-    fbox_w = (fbody_box[2] - fbody_box[0]) * 0.7
-    fbox_h = (fbody_box[3] - fbody_box[1]) * 0.6
-    fcx = (fbody_box[0] + fbody_box[2]) / 2
-    fcy = (fbody_box[1] + fbody_box[3]) / 2
-    _paste_design(canvas, design, (int(fcx - fbox_w / 2), int(fcy - fbox_h / 2), int(fcx + fbox_w / 2), int(fcy + fbox_h / 2)))
+    if not cover:
+        scale = 1 / _SS
+        fbody_box = [c * scale for c in body_box]
+        fbox_w = (fbody_box[2] - fbody_box[0]) * 0.7
+        fbox_h = (fbody_box[3] - fbody_box[1]) * 0.6
+        fcx = (fbody_box[0] + fbody_box[2]) / 2
+        fcy = (fbody_box[1] + fbody_box[3]) / 2
+        _paste_design(canvas, design, (int(fcx - fbox_w / 2), int(fcy - fbox_h / 2), int(fcx + fbox_w / 2), int(fcy + fbox_h / 2)))
     return canvas.convert("RGB")
+
+
+def mockup_tumbler(design: Image.Image, garment: str = "white") -> Image.Image:
+    """A tall handled tumbler with the design wrapped edge to edge across
+    the visible body - for the all-over scatter-pattern designs in
+    design/generators/pattern.py."""
+    canvas, draw, w, h = _new_ss_canvas("#E8E6E0")
+    color = GARMENT_COLORS[garment]
+    outline = _shade(color, 0.25) if garment != "black" else "#3A3A3A"
+
+    body_box = [w * 0.36, h * 0.2, w * 0.64, h * 0.82]
+    radius = int(w * 0.05)
+
+    mask = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(mask).rounded_rectangle(body_box, radius=radius, fill=255)
+    design_layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    _paste_design_cover(design_layer, design, body_box)
+    canvas.paste(design_layer, (0, 0), mask)
+    draw.rounded_rectangle(body_box, radius=radius, outline=outline, width=int(w * 0.004))
+
+    lid_box = [body_box[0] - w * 0.01, body_box[1] - h * 0.035, body_box[2] + w * 0.01, body_box[1] + h * 0.02]
+    draw.rounded_rectangle(lid_box, radius=int(w * 0.02), fill=color, outline=outline, width=int(w * 0.004))
+    straw_x = (lid_box[0] + lid_box[2]) / 2 + w * 0.06
+    draw.line([(straw_x, lid_box[1] - h * 0.09), (straw_x, lid_box[1] + h * 0.01)], fill=outline, width=int(w * 0.012))
+
+    handle_w, handle_h = w * 0.09, h * 0.22
+    hx0 = body_box[2] - w * 0.01
+    hy0 = body_box[1] + h * 0.18
+    draw.rounded_rectangle([hx0, hy0, hx0 + handle_w, hy0 + handle_h], radius=int(w * 0.03), outline=outline, width=int(w * 0.018))
+
+    mask2 = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(mask2).rounded_rectangle(body_box, radius=radius, fill=255)
+    shade = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(shade)
+    box_w = body_box[2] - body_box[0]
+    sd.rectangle([body_box[0], body_box[1], body_box[0] + box_w * 0.22, body_box[3]], fill=(255, 255, 255, 45))
+    sd.rectangle([body_box[2] - box_w * 0.22, body_box[1], body_box[2], body_box[3]], fill=(0, 0, 0, 55))
+    shade.putalpha(Image.composite(shade.split()[3], Image.new("L", (w, h), 0), mask2))
+    canvas.alpha_composite(shade)
+
+    return _finish(canvas).convert("RGB")

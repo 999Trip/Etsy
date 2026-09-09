@@ -11,9 +11,21 @@ import math
 import random
 
 from design.engine import Canvas, size_px
+from design.motifs import draw_icon
 from design.palettes import get_palette
 
-MOTIFS = ("dots", "stripes", "checker", "scallop", "arches")
+# Icon sets for the all-over scattered-icon motifs (tumbler/mug wraps) -
+# each name below becomes its own motif via _make_scatter. No "scatter_"
+# prefix so humanize(motif) reads cleanly in auto-generated SEO titles
+# (e.g. "Night Sky", not "Scatter Night Sky").
+SCATTER_ICON_SETS = {
+    "night_sky": ("bat", "moon_stars", "star_sparkle"),
+    "cozy_critters": ("black_cat", "pumpkin", "ghost"),
+    "witchy_purple": ("black_cat", "pumpkin", "moon_stars", "star_sparkle"),
+    "jack_o_lanterns": ("jack_o_lantern_face",),
+}
+
+MOTIFS = ("dots", "stripes", "checker", "scallop", "arches", *SCATTER_ICON_SETS.keys())
 
 
 def _dots(canvas: Canvas, palette: dict, rng: random.Random) -> None:
@@ -85,12 +97,38 @@ def _arches(canvas: Canvas, palette: dict, rng: random.Random) -> None:
         row += 1
 
 
+def _make_scatter(icons: tuple[str, ...]):
+    """All-over scattered-icon pattern - random position/size/rotation
+    (rotation approximated by simply varying size, since the icon
+    functions don't support arbitrary rotation) of a small icon set
+    across the canvas, for tumbler/mug wraps and digital paper. This is
+    original artwork built from our own icon library, not a copy of any
+    specific commercial product design."""
+
+    def _draw(canvas: Canvas, palette: dict, rng: random.Random) -> None:
+        colors = [palette["ink"], *palette["accent"]]
+        density = 46 if len(icons) > 1 else 70
+        count = int((canvas.w * canvas.h) / (min(canvas.size) ** 2) * density)
+        min_dim = min(canvas.size)
+        for _ in range(count):
+            icon = rng.choice(icons)
+            cx = rng.uniform(0, canvas.w)
+            cy = rng.uniform(0, canvas.h)
+            r = min_dim * rng.uniform(0.025, 0.06)
+            ink = rng.choice(colors)
+            accent = rng.choice([c for c in colors if c != ink] or colors)
+            draw_icon(canvas.draw, icon, cx, cy, r, ink, accent)
+
+    return _draw
+
+
 _MOTIF_FN = {
     "dots": _dots,
     "stripes": _stripes,
     "checker": _checker,
     "scallop": _scallop,
     "arches": _arches,
+    **{name: _make_scatter(icons) for name, icons in SCATTER_ICON_SETS.items()},
 }
 
 
