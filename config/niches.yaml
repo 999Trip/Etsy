@@ -268,90 +268,6 @@ niches:
         - cozy home decor
         - october decor
 
-  halloween_apparel_graphics:
-    type: apparel_graphic
-    product_mode: pod
-    # pastel_cuteoween covers the 2026 "cute-o-ween" trend (soft
-    # lavender/muted-orange, popular for kids & family matching sets)
-    # alongside the classic warm/dark palettes.
-    palettes: [terracotta_boho, clay_rust, charcoal_mono, pastel_cuteoween]
-    motifs: [ghost, bat, witch_hat, black_cat, moon_stars, pumpkin]
-    texts:
-      - "Boo"
-      - "Spooky Season"
-      - "Basic Witch"
-      - "Trick or Treat Y'all"
-      - "Witchy Vibes Only"
-      - "Happy Haunting"
-      - "This Is My Costume"
-    pod_sizes: [apparel_12x16, mug_9x4]
-    price_pod: 24.00
-    seo:
-      title_template: >-
-        "{text}" Halloween {motif_title} Graphic | Funny Halloween Shirt
-        Design
-      description_template: |
-        A bold "{text}" Halloween graphic featuring a minimalist
-        {motif_title} icon - printed on soft, comfortable apparel or
-        wrapped around a mug. Great for Halloween parties, fall
-        get-togethers, or everyday spooky-season style.
-
-        Available in multiple product types and sizes - check the variant
-        options on this listing.
-      tags:
-        - halloween shirt
-        - spooky season
-        - funny halloween
-        - fall sweatshirt
-        - halloween gift
-        - trick or treat
-        - halloween mug
-        - witch shirt
-        - pumpkin shirt
-        - fall graphic tee
-        - halloween party
-        - pastel halloween
-
-  fall_apparel_graphics:
-    type: apparel_graphic
-    product_mode: pod
-    palettes: [terracotta_boho, clay_rust, sage_minimal]
-    motifs: [pumpkin, leaf]
-    texts:
-      - "Hello Fall"
-      - "Pumpkin Spice Szn"
-      - "Cozy Season"
-      - "Fall Vibes Only"
-      - "Grateful & Cozy"
-      - "But First, Coffee"
-      - "Pumpkin Spice and Everything Nice"
-    pod_sizes: [apparel_12x16, mug_9x4]
-    price_pod: 24.00
-    seo:
-      title_template: >-
-        "{text}" Fall {motif_title} Graphic | Cozy Autumn Shirt Design
-      description_template: |
-        A bold "{text}" fall graphic featuring a minimalist {motif_title}
-        icon - printed on soft, comfortable apparel or wrapped around a
-        mug. Great for pumpkin patches, football season, or everyday
-        autumn style.
-
-        Available in multiple product types and sizes - check the variant
-        options on this listing.
-      tags:
-        - fall shirt
-        - pumpkin spice
-        - cozy sweatshirt
-        - autumn apparel
-        - fall gift
-        - thanksgiving shirt
-        - fall mug
-        - hello fall
-        - pumpkin shirt
-        - fall graphic tee
-        - autumn gift
-        - cozy season
-
   # --- Planners / trackers (fastest-growing digital category per 2026 --
   # --- trend research - see design/generators/planner.py) -------------
 
@@ -569,11 +485,72 @@ niches:
         - wall art print
         - autumn decor
 
+  halloween_vintage_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    # Same illustrated box-print artwork as halloween_vintage_posters_canva
+    # (reuse the same generated design and import it a second time under
+    # this niche) - printed as a bold rectangular graphic on apparel/mugs
+    # rather than sold as a paper print. No transparency/background
+    # removal needed, which also sidesteps another Canva Pro-gated step.
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Happy Haunting Pumpkin"
+        query: >-
+          Vintage retro Halloween poster, 1970s groovy typography, "Happy
+          Haunting" text, warm burnt-orange and deep purple color palette,
+          distressed illustrated pumpkin and moon, nostalgic autumn
+          aesthetic, no photographic people
+      - label: "Basic Witch"
+        query: >-
+          Vintage retro Halloween poster, hand-lettered script text
+          reading "Basic Witch", illustrated witch hat and crescent moon,
+          distressed paper texture, deep purple and mustard color palette,
+          no photographic people
+      - label: "Vintage Black Cat"
+        query: >-
+          Vintage retro Halloween poster, retro illustrated black cat
+          silhouette under a full moon, hand-lettered "Meow-y Halloween"
+          text, distressed texture, burnt orange and charcoal palette, no
+          photographic people
+      - label: "Haunted House"
+        query: >-
+          Vintage retro Halloween poster, illustrated haunted house on a
+          hill under a starry night sky, groovy 1970s typography reading
+          "Trick or Treat", distressed texture, deep purple and orange
+          palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Vintage Halloween Graphic | Retro Illustrated
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" vintage-style illustrated Halloween graphic,
+        printed as a bold box-print design - available on t-shirts,
+        sweatshirts, hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - vintage halloween
+        - halloween shirt
+        - retro tee
+        - illustrated tee
+        - halloween hoodie
+        - halloween mug
+        - spooky season
+        - retro halloween
+        - halloween gift
+        - graphic tee
+        - box print tee
+        - autumn apparel
+
   fall_party_invitations_canva:
     type: canva
     product_mode: digital
     canva_design_type: invitation
-    digital_sizes: [invite_native]
+    digital_sizes: [5x7]
     price_digital: 6.00
     prompts:
       - label: "Youre Invited Pumpkins"
@@ -604,8 +581,9 @@ niches:
         party details. Print at home or a local print shop.
 
         WHAT YOU GET
-        - A high-resolution PNG file, ready to add your text in any photo
-          editor, or request a fully editable Canva link at checkout
+        - High-resolution PDF and PNG files (5x7in, 300 DPI), ready to
+          add your text in any photo editor, or request a fully editable
+          Canva link at checkout
 
         This is a digital file - no physical item will be shipped.
       tags:
@@ -621,3 +599,121 @@ niches:
         - harvest party
         - invite template
         - cottagecore invite
+
+  fall_vintage_posters_canva:
+    type: canva
+    product_mode: digital
+    canva_design_type: poster
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 5.00
+    prompts:
+      - label: "Hello Fall Pumpkin Patch"
+        query: >-
+          Vintage retro fall poster, 1970s groovy typography, "Hello Fall"
+          text, illustrated pumpkin patch and falling leaves, warm
+          burnt-orange and mustard color palette, distressed paper
+          texture, no photographic people
+      - label: "Cozy Season Cabin"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Cozy Season", illustrated cabin in the woods surrounded by
+          falling leaves, distressed texture, deep rust and forest green
+          palette, no photographic people
+      - label: "Pumpkin Spice Life"
+        query: >-
+          Vintage retro fall poster, groovy 1970s typography reading
+          "Pumpkin Spice Life", illustrated coffee cup and autumn leaves,
+          warm cream and burnt orange palette, distressed texture, no
+          photographic people
+      - label: "Grateful Harvest"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Grateful Harvest", illustrated wheat and pumpkins, distressed
+          paper texture, warm terracotta and gold palette, no
+          photographic people
+    seo:
+      title_template: >-
+        {variant_title} Vintage Fall Poster | Retro Illustrated Wall Art |
+        Digital Download Printable
+      description_template: |
+        A {variant_title} vintage-style fall poster - hand-lettered
+        typography and illustrated retro artwork with a distressed,
+        nostalgic finish. Cozy autumn wall art for gallery walls, entryways,
+        or kitchens.
+
+        WHAT YOU GET
+        - High-resolution print-ready PDF files (US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - vintage fall art
+        - retro fall poster
+        - fall wall art
+        - illustrated art
+        - printable art
+        - digital download
+        - autumn decor
+        - retro poster
+        - cozy decor
+        - instant download
+        - wall art print
+        - farmhouse decor
+
+  fall_vintage_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    # Same illustrated box-print artwork as fall_vintage_posters_canva -
+    # reuse the same generated design and import it a second time under
+    # this niche.
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Hello Fall Pumpkin Patch"
+        query: >-
+          Vintage retro fall poster, 1970s groovy typography, "Hello Fall"
+          text, illustrated pumpkin patch and falling leaves, warm
+          burnt-orange and mustard color palette, distressed paper
+          texture, no photographic people
+      - label: "Cozy Season Cabin"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Cozy Season", illustrated cabin in the woods surrounded by
+          falling leaves, distressed texture, deep rust and forest green
+          palette, no photographic people
+      - label: "Pumpkin Spice Life"
+        query: >-
+          Vintage retro fall poster, groovy 1970s typography reading
+          "Pumpkin Spice Life", illustrated coffee cup and autumn leaves,
+          warm cream and burnt orange palette, distressed texture, no
+          photographic people
+      - label: "Grateful Harvest"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Grateful Harvest", illustrated wheat and pumpkins, distressed
+          paper texture, warm terracotta and gold palette, no
+          photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Vintage Fall Graphic | Retro Illustrated
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" vintage-style illustrated fall graphic,
+        printed as a bold box-print design - available on t-shirts,
+        sweatshirts, hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - vintage fall
+        - fall shirt
+        - retro tee
+        - illustrated tee
+        - fall hoodie
+        - fall mug
+        - cozy season
+        - autumn gift
+        - graphic tee
+        - box print tee
+        - autumn apparel
+        - pumpkin shirt

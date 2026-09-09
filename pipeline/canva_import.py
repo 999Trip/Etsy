@@ -10,18 +10,33 @@ Python process. The actual workflow is:
   1. In conversation, ask Claude to generate a design for a "canva" niche
      (see config/niches.yaml - each has a `prompts` list of {label, query}
      recipes and a `canva_design_type`). Claude calls generate-design,
-     picks/creates a candidate design, and exports it (PDF per size in
-     `digital_sizes`, plus a PNG preview) via the Canva MCP tools.
-  2. Claude then runs this script with the resulting export URLs (they're
-     pre-signed and expire - typically within a few hours - so download
-     promptly) to download the files and write metadata.json in the
-     standard shape.
+     picks/creates a candidate design, and exports it as a PDF with NO
+     forced paper size (`{"type": "pdf"}` - no `size` key). That matters:
+     Canva's raw PNG export is capped at a modest width on the free plan
+     (~1000-1500px failed with a generic "not allowed" error in testing),
+     but PDF export renders the design at its own native canvas size -
+     which for a "poster" design type is a full physical poster (huge,
+     ~4960x7016px once rasterized at 300 DPI) regardless of plan.
+  2. Claude runs this script with that one PDF export URL. It rasterizes
+     the PDF locally at 300 DPI (via PyMuPDF) into one master image, then
+     derives every size this niche needs (each `digital_sizes` /
+     `pod_sizes` entry, using the same size table as every other
+     generator - see design/engine.SIZES_IN) by center-cropping and
+     resizing that master locally - no further Canva export calls needed.
+
+Note: a design's native canvas size varies a lot by Canva design_type -
+"poster" defaults to a large physical poster, "invitation" defaults to a
+modest card size (which is *correct* for a card, not under-resolution;
+300 DPI at invitation size is a few thousand pixels less than at poster
+size because the invitation is physically smaller). Cropping a much
+larger target out of a small native canvas will look soft - check that
+a niche's `digital_sizes`/`pod_sizes` are a reasonable fit for the
+`canva_design_type` before importing.
 
 Usage:
-    python -m pipeline.canva_import --niche halloween_vintage_posters_canva \\
+    python -m pipeline.canva_import --niche halloween_vintage_apparel_canva \\
         --variant "Happy Haunting Pumpkin" \\
-        --pdf letter_8.5x11=<signed pdf url> a4=<signed pdf url> \\
-        --preview <signed png url> \\
+        --master-pdf <signed pdf export url, requested with no size param> \\
         --canva-design-id DAHUuBX0MfE --canva-edit-url https://www.canva.com/d/...
 """
 from __future__ import annotations
@@ -31,9 +46,14 @@ import json
 import uuid
 from pathlib import Path
 
+import pymupdf
 import requests
+from PIL import Image
 
+from design.engine import size_px
 from pipeline.generate import humanize, load_niches, render_seo, slugify
+
+RASTER_DPI = 300
 
 
 def _download(url: str, path: Path) -> None:
@@ -43,28 +63,65 @@ def _download(url: str, path: Path) -> None:
     path.write_bytes(resp.content)
 
 
+def _rasterize_master(pdf_path: Path) -> Image.Image:
+    doc = pymupdf.open(pdf_path)
+    pix = doc[0].get_pixmap(dpi=RASTER_DPI)
+    mode = "RGBA" if pix.n >= 4 else "RGB"
+    image = Image.frombytes(mode, (pix.width, pix.height), pix.samples)
+    return image.convert("RGB")
+
+
+def _crop_to_ratio(master: Image.Image, target_w: int, target_h: int) -> Image.Image:
+    """Center-crop `master` to the target aspect ratio, then resize to
+    the exact target pixel size. Right for a paper size a printable must
+    fill edge to edge (letter, a4, 5x7, ...) - wrong for a POD print area
+    whose ratio doesn't resemble the artwork's own (a tall poster cropped
+    to a wide mug wrap keeps only a thin horizontal sliver, losing the
+    title entirely) - use `_fit_within` for those instead."""
+    src_ratio = master.width / master.height
+    target_ratio = target_w / target_h
+    if src_ratio > target_ratio:
+        new_w = int(round(master.height * target_ratio))
+        x0 = (master.width - new_w) // 2
+        cropped = master.crop((x0, 0, x0 + new_w, master.height))
+    else:
+        new_h = int(round(master.width / target_ratio))
+        y0 = (master.height - new_h) // 2
+        cropped = master.crop((0, y0, master.width, y0 + new_h))
+    return cropped.resize((target_w, target_h), Image.LANCZOS)
+
+
+def _fit_within(master: Image.Image, max_w: int, max_h: int) -> Image.Image:
+    """Scale `master` to fit entirely within (max_w, max_h), preserving
+    its own aspect ratio - the whole graphic stays visible, sized for a
+    print-on-demand product to center/scale within its print area (this
+    is what a "box print" graphic on a t-shirt or mug actually is: the
+    full rectangular design, not a crop of it)."""
+    scale = min(max_w / master.width, max_h / master.height)
+    new_size = (max(1, round(master.width * scale)), max(1, round(master.height * scale)))
+    return master.resize(new_size, Image.LANCZOS)
+
+
 def import_design(
     niche_name: str,
     variant: str,
-    preview_url: str,
+    master_pdf_url: str,
     canva_design_id: str,
-    pdf_urls: dict[str, str] | None = None,
-    png_urls: dict[str, str] | None = None,
     canva_edit_url: str | None = None,
     out_dir: Path | None = None,
     price_override: float | None = None,
 ) -> dict:
-    pdf_urls = pdf_urls or {}
-    png_urls = png_urls or {}
-    if not pdf_urls and not png_urls:
-        raise ValueError("Provide at least one of pdf_urls or png_urls.")
-
     niches = load_niches()
     if niche_name not in niches:
         raise KeyError(f"Unknown niche '{niche_name}'. Available: {', '.join(sorted(niches))}")
     niche = niches[niche_name]
     if niche["type"] != "canva":
         raise ValueError(f"Niche '{niche_name}' is type '{niche['type']}', not 'canva'.")
+
+    digital_sizes = niche.get("digital_sizes", [])
+    pod_sizes = niche.get("pod_sizes", [])
+    if not digital_sizes and not pod_sizes:
+        raise ValueError(f"Niche '{niche_name}' has no digital_sizes or pod_sizes configured.")
 
     context = {"variant_title": humanize(variant), "quote": "", "quote_short": "", "motif_title": "", "text": ""}
     seo = render_seo(niche, context)
@@ -73,25 +130,53 @@ def import_design(
     design_slug = slugify(f"{niche_name}-{variant}-{uuid.uuid4().hex[:6]}")
     design_dir = out_dir / design_slug
 
+    master_pdf_path = design_dir / "_master.pdf"
+    _download(master_pdf_url, master_pdf_path)
+    master = _rasterize_master(master_pdf_path)
+    master_pdf_path.unlink()
+
     files: dict[str, dict[str, str]] = {}
-    for size_name, url in pdf_urls.items():
-        pdf_path = design_dir / f"{size_name}.pdf"
-        _download(url, pdf_path)
-        files.setdefault("pdf", {})[size_name] = str(pdf_path)
-    for size_name, url in png_urls.items():
+    preview_path = design_dir / "preview.jpg"
+    preview_size = (digital_sizes + pod_sizes)[0]
+
+    for size_name in digital_sizes:
+        w, h = size_px(size_name)
+        derived = _crop_to_ratio(master, w, h)
+
         png_path = design_dir / f"{size_name}.png"
-        _download(url, png_path)
+        derived.save(png_path, "PNG")
         files.setdefault("png", {})[size_name] = str(png_path)
 
-    preview_path = design_dir / "preview.jpg"
-    downloaded_preview = design_dir / "preview_source.png"
-    _download(preview_url, downloaded_preview)
-    from PIL import Image
+        pdf_path = design_dir / f"{size_name}.pdf"
+        derived.save(pdf_path, "PDF", resolution=RASTER_DPI)
+        files.setdefault("pdf", {})[size_name] = str(pdf_path)
 
-    Image.open(downloaded_preview).convert("RGB").save(preview_path, "JPEG", quality=87)
-    downloaded_preview.unlink()
+        if size_name == preview_size:
+            preview = derived.copy()
+            preview.thumbnail((1600, 1600))
+            preview.save(preview_path, "JPEG", quality=87)
 
-    price = price_override if price_override is not None else niche.get("price_digital")
+    for size_name in pod_sizes:
+        w, h = size_px(size_name)
+        derived = _fit_within(master, w, h)
+
+        png_path = design_dir / f"{size_name}.png"
+        derived.save(png_path, "PNG")
+        files.setdefault("png", {})[size_name] = str(png_path)
+
+        if size_name == preview_size:
+            preview = derived.copy()
+            preview.thumbnail((1600, 1600))
+            preview.save(preview_path, "JPEG", quality=87)
+
+    price_digital = niche.get("price_digital") if digital_sizes else None
+    price_pod = niche.get("price_pod") if pod_sizes else None
+    if price_override is not None:
+        if digital_sizes:
+            price_digital = price_override
+        if pod_sizes:
+            price_pod = price_override
+
     metadata = {
         "design_id": design_slug,
         "niche": niche_name,
@@ -104,10 +189,10 @@ def import_design(
         "title": seo["title"],
         "description": seo["description"],
         "tags": seo["tags"],
-        "price_digital": price,
-        "price_pod": None,
-        "pod_sizes": [],
-        "digital_sizes": list(pdf_urls.keys()) + list(png_urls.keys()),
+        "price_digital": price_digital,
+        "price_pod": price_pod,
+        "pod_sizes": pod_sizes,
+        "digital_sizes": digital_sizes,
         "preview": str(preview_path),
         "files": files,
     }
@@ -121,26 +206,20 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Package a Canva-generated design into the standard batch format.")
     parser.add_argument("--niche", required=True, help="Niche name from config/niches.yaml (must be type: canva)")
     parser.add_argument("--variant", required=True, help="Which niche 'prompts' label this design used (drives SEO title/description)")
-    parser.add_argument("--pdf", nargs="+", default=[], metavar="SIZE=URL", help="size=signed-pdf-url pairs, e.g. letter_8.5x11=https://... (use for designs whose native ratio matches a4/letter, like posters)")
-    parser.add_argument("--png", nargs="+", default=[], metavar="SIZE=URL", help="size=signed-png-url pairs - use for designs with a non-paper aspect ratio, like invitations/cards, to avoid distorting them into a4/letter")
-    parser.add_argument("--preview", required=True, help="Signed PNG export URL for the preview image")
+    parser.add_argument("--master-pdf", required=True, help="Signed PDF export URL, requested with no 'size' param (see module docstring)")
     parser.add_argument("--canva-design-id", required=True, help="The Canva design ID (from create-design-from-candidate)")
     parser.add_argument("--canva-edit-url", default=None, help="The Canva edit URL, saved for reference/future edits")
     parser.add_argument("--out", default=None, help="Output directory (default: output/<niche>)")
-    parser.add_argument("--price", type=float, default=None, help="Override the niche's default price_digital")
+    parser.add_argument("--price", type=float, default=None, help="Override the niche's default price_digital/price_pod")
     args = parser.parse_args()
 
-    pdf_urls = dict(pair.split("=", 1) for pair in args.pdf)
-    png_urls = dict(pair.split("=", 1) for pair in args.png)
     out_dir = Path(args.out) if args.out else None
 
     metadata = import_design(
         args.niche,
         args.variant,
-        args.preview,
+        args.master_pdf,
         args.canva_design_id,
-        pdf_urls=pdf_urls,
-        png_urls=png_urls,
         canva_edit_url=args.canva_edit_url,
         out_dir=out_dir,
         price_override=args.price,

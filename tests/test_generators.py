@@ -11,6 +11,7 @@ import unittest
 from pathlib import Path
 
 from design import mockup
+from design.engine import SIZES_IN
 from design.generators import apparel_graphic, line_art, pattern, planner, quote_poster
 from design.motifs import ICON_DRAW_FN
 from design.palettes import PALETTES
@@ -80,6 +81,26 @@ class NicheConfigTests(unittest.TestCase):
                 self.assertLessEqual(len(tag), 20, f"{name}: tag '{tag}' exceeds Etsy's 20-char limit")
             self.assertLessEqual(len(niche["seo"]["tags"]), 13, f"{name}: more than 13 tags")
 
+    def test_every_configured_size_is_a_real_size(self):
+        """Every digital_sizes/pod_sizes entry must be a key design.engine
+        actually knows how to render at - a typo or made-up label here
+        (e.g. a size name invented for one niche and never added to
+        SIZES_IN) would only surface at generation/import time otherwise."""
+        for name, niche in load_niches().items():
+            for size_name in niche.get("digital_sizes", []) + niche.get("pod_sizes", []):
+                self.assertIn(size_name, SIZES_IN, f"{name}: '{size_name}' is not a key in design.engine.SIZES_IN")
+
+    def test_canva_niches_have_required_fields(self):
+        for name, niche in load_niches().items():
+            if niche["type"] != "canva":
+                continue
+            self.assertIn("canva_design_type", niche, name)
+            self.assertTrue(niche.get("prompts"), f"{name}: no prompts configured")
+            for prompt in niche["prompts"]:
+                self.assertIn("label", prompt, name)
+                self.assertIn("query", prompt, name)
+            self.assertTrue(niche.get("digital_sizes") or niche.get("pod_sizes"), f"{name}: no digital_sizes or pod_sizes")
+
 
 class BatchPipelineTests(unittest.TestCase):
     def setUp(self):
@@ -95,15 +116,6 @@ class BatchPipelineTests(unittest.TestCase):
             self.assertTrue(Path(design["preview"]).exists())
             self.assertLessEqual(len(design["tags"]), 13)
             self.assertLessEqual(len(design["title"]), 140)
-
-    def test_generate_batch_apparel_graphic_niche(self):
-        results = generate_batch("halloween_apparel_graphics", 2, self.tmp_dir, seed=1)
-        self.assertEqual(len(results), 2)
-        for design in results:
-            self.assertEqual(design["product_mode"], "pod")
-            self.assertIn("apparel_12x16", design["files"]["png"])
-            self.assertIn("mug_9x4", design["files"]["png"])
-            self.assertTrue(Path(design["preview"]).exists())
 
     def test_generate_batch_planner_niche(self):
         results = generate_batch("fall_budget_tracker_printable", 2, self.tmp_dir, seed=1)

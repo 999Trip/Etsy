@@ -3,14 +3,19 @@
 Generates finished, listable products (digital printables and
 print-on-demand physical products) end to end:
 
-1. **Design** - procedurally generate artwork (typography quote posters,
-   boho line art, seamless patterns, apparel/mug graphics, and printable
-   planners/trackers) with Pillow, for free, with no paid AI image model
-   in the loop. Optionally supplement that with illustrated/painterly
-   designs generated through a connected Canva account (see "Illustrated
-   designs via Canva" below) for styles the procedural generators can't
-   produce - hand-lettered script, watercolor florals, distressed vintage
-   textures.
+1. **Design** - two sources feed into the same pipeline:
+   - **Procedural** (`design/generators/`) - typography quote posters,
+     boho line art, seamless patterns, and printable planners/trackers,
+     drawn with Pillow, for free, no paid AI model in the loop.
+   - **Canva-generated illustrated designs** - hand-lettered script,
+     illustrated characters, distressed vintage textures - styles the
+     procedural generators can't produce. **This is the source for every
+     apparel/mug design now** (see "Illustrated designs via Canva"
+     below) - an earlier flat-icon-silhouette Pillow approach for
+     apparel was tried and dropped for looking cheap on an actual
+     t-shirt mockup; Canva's illustrated "box print" graphics (the whole
+     illustrated rectangle printed on the garment, no background
+     removal needed) looked dramatically better in testing.
 2. **Digital downloads** - upload the generated files straight to Etsy as
    digital-download listings via the Etsy Open API v3.
 3. **Print-on-demand** - upload the generated artwork to Printify, create
@@ -22,12 +27,14 @@ print-on-demand physical products) end to end:
 trend research, not guesswork - see the comments in that file for what
 each one targets:
 
-- **Fall/Halloween wall art & apparel** - `halloween_line_art_wall_decor`,
-  `halloween_quote_posters`, `fall_line_art_wall_decor`,
-  `halloween_apparel_graphics`, `fall_apparel_graphics`. Apparel designs
-  use a worn/distressed texture by default (`Canvas.add_distress`) to
-  match 2026's dominant vintage-Halloween aesthetic, plus a
-  `pastel_cuteoween` palette for the trending soft-pastel look.
+- **Fall/Halloween wall art (procedural)** - `halloween_line_art_wall_decor`,
+  `halloween_quote_posters`, `fall_line_art_wall_decor`.
+- **Fall/Halloween illustrated designs (Canva)** -
+  `halloween_vintage_posters_canva` / `halloween_vintage_apparel_canva`
+  and `fall_vintage_posters_canva` / `fall_vintage_apparel_canva` (same
+  illustrated artwork, sold as a paper print vs. printed on apparel/mugs
+  - see "Illustrated designs via Canva"), plus
+  `fall_party_invitations_canva` for editable-style invitations.
 - **Planners & trackers** - `weekly_planner_printable`,
   `fall_budget_tracker_printable`, `habit_tracker_printable`,
   `checklist_printable`. Research showed planners/templates are Etsy's
@@ -38,11 +45,12 @@ each one targets:
 - **Original boho/minimalist starter set** -
   `boho_line_art_wall_decor`, `minimalist_quote_posters`,
   `boho_digital_paper_pack`.
-- **Canva-generated illustrated designs** - `halloween_vintage_posters_canva`,
-  `fall_party_invitations_canva`. These target styles (illustrated retro
-  artwork, hand-lettered invitations) the procedural generators can't
-  produce - see "Illustrated designs via Canva" below for how generation
-  works differently for this niche type.
+
+`design/generators/apparel_graphic.py` (flat icon silhouette + text on a
+transparent background) still exists and is still tested, but no niche
+uses it for apparel any more - see above. It's a reasonable base for
+cheap, high-volume filler designs later; just not the current answer for
+apparel quality.
 
 ```
 design/        procedural art generators (quote posters, line art, patterns)
@@ -76,12 +84,10 @@ python -m pipeline.generate --niche minimalist_quote_posters --count 6 --seed 1
 python -m pipeline.generate --niche boho_line_art_wall_decor --count 8
 python -m pipeline.generate --niche boho_digital_paper_pack --count 10
 
-# Trending fall / Halloween niches
+# Trending fall / Halloween wall art (procedural)
 python -m pipeline.generate --niche halloween_line_art_wall_decor --count 8
 python -m pipeline.generate --niche halloween_quote_posters --count 6
 python -m pipeline.generate --niche fall_line_art_wall_decor --count 6
-python -m pipeline.generate --niche halloween_apparel_graphics --count 10
-python -m pipeline.generate --niche fall_apparel_graphics --count 10
 
 # Planners / trackers (fastest-growing digital category)
 python -m pipeline.generate --niche weekly_planner_printable --count 5
@@ -89,6 +95,9 @@ python -m pipeline.generate --niche fall_budget_tracker_printable --count 5
 python -m pipeline.generate --niche habit_tracker_printable --count 5
 python -m pipeline.generate --niche checklist_printable --count 5
 ```
+
+All apparel/mug niches and every `type: canva` niche (see `config/niches.yaml`)
+aren't generated this way - see "Illustrated designs via Canva" below.
 
 Each run writes `output/<niche>/<design-slug>/` containing:
 
@@ -164,22 +173,21 @@ re-run after fixing a mistake partway through a batch.
 
 ### Publishing the same design to multiple product types (tee + sweatshirt + mug)
 
-The apparel/mug niches (`halloween_apparel_graphics`,
-`fall_apparel_graphics`) render each design at more than one size -
-`apparel_12x16` (portrait, for tees/sweatshirts/hoodies) and `mug_9x4`
-(landscape wrap, for mugs) - specifically so the same batch can become
+The Canva apparel niches (see below) produce a `pod_sizes` file per
+product shape - `apparel_12x16` (portrait, for tees/sweatshirts/hoodies)
+and `mug_9x4` (for mugs) - specifically so the same design can become
 several Printify products. Run `publish_pod` once per product type,
 pointing `--print-size` at the matching file and `--blueprint-id` at that
 product's catalog entry:
 
 ```bash
 # T-shirts
-python -m pipeline.publish_pod --batch output/halloween_apparel_graphics \
+python -m pipeline.publish_pod --batch output/halloween_vintage_apparel_canva \
     --blueprint-id 6 --print-provider-id 1 --variant-ids 12100,12101 \
     --print-size apparel_12x16 --publish
 
 # Same batch, also as mugs - different blueprint, price, and print file
-python -m pipeline.publish_pod --batch output/halloween_apparel_graphics \
+python -m pipeline.publish_pod --batch output/halloween_vintage_apparel_canva \
     --blueprint-id 68 --print-provider-id 27 --variant-ids 33843 \
     --print-size mug_9x4 --price 14.99 --publish
 ```
@@ -189,13 +197,6 @@ Each blueprint is tracked separately in `metadata.json`
 `--blueprint-id` adds a new product instead of being skipped as
 already-published, while re-running with the *same* one is idempotent.
 
-**Dark garments:** the apparel/mug niches only use dark-ink palettes, so
-the artwork is safely visible on white/light/heather product variants out
-of the box. For a black or navy garment variant you'll want an
-inverted/white version of the art - swap `palette["ink"]` for a light
-color when generating that batch, or recolor in Printify's product editor
-after uploading.
-
 **Previewing before Printify is set up:** `pipeline.mockup_preview`
 composites a design onto flat t-shirt/hoodie/sweatshirt/mug shapes
 (`design/mockup.py`) - not photorealistic, but the real print pixels at
@@ -204,60 +205,85 @@ any Printify products:
 
 ```bash
 python -m pipeline.mockup_preview \
-    --design output/halloween_apparel_graphics/<slug> \
-    --garment black
+    --design output/halloween_vintage_apparel_canva/<slug> \
+    --garment navy
 ```
 
-## 5. Illustrated designs via Canva (optional)
+## 5. Illustrated designs via Canva
 
-Niches with `type: canva` in `config/niches.yaml` (currently
-`halloween_vintage_posters_canva`, `fall_party_invitations_canva`) work
-differently from every other niche: generation is **interactive, not
-scriptable**. The Canva MCP tools (`generate-design`,
-`create-design-from-candidate`, `export-design`) are only callable by
-Claude in a live conversation - there's no standalone `python -m
-pipeline.generate --niche halloween_vintage_posters_canva` for these.
+Niches with `type: canva` in `config/niches.yaml` work differently from
+every other niche: generation is **interactive, not scriptable**. The
+Canva MCP tools (`generate-design`, `create-design-from-candidate`,
+`export-design`) are only callable by Claude in a live conversation -
+there's no standalone `python -m pipeline.generate --niche ...` for
+these. This is the path for **every apparel/mug niche**
+(`halloween_vintage_apparel_canva`, `fall_vintage_apparel_canva`), plus
+illustrated wall art (`halloween_vintage_posters_canva`,
+`fall_vintage_posters_canva`) and invitations
+(`fall_party_invitations_canva`).
 
 To generate one: ask Claude (with a Canva account connected) to generate
 a design using one of the `prompts` recipes listed under that niche in
-`config/niches.yaml`. Claude will call the Canva tools, then run
-`pipeline.canva_import` with the resulting export URLs to package the
-result into the exact same `output/<niche>/<slug>/metadata.json` shape
-every other niche produces - so `pipeline.publish_digital` works on it
-unchanged:
+`config/niches.yaml`. Claude:
+
+1. Calls `generate-design` with that prompt and the niche's
+   `canva_design_type`, then `create-design-from-candidate` on whichever
+   candidate looks best.
+2. Calls `export-design` with `{"type": "pdf"}` - **no `size` param**.
+   Canva's raw PNG export is capped at a modest width on the free plan
+   (~1000-1500px failed with a generic "not allowed" error in testing),
+   but PDF export renders at the design's own native canvas size, which
+   for a "poster" design type is a full physical poster (huge -
+   ~4960x7016px once rasterized at 300 DPI - regardless of plan).
+3. Runs `pipeline.canva_import` with that one PDF URL. It rasterizes the
+   PDF locally (via PyMuPDF) into one master image, then derives every
+   size the niche needs from that single master - letter/a4 PDFs for
+   wall art (cropped to fill the page exactly), and PNGs for apparel/mug
+   POD sizes (scaled to fit within the print area *without* cropping,
+   since a tall poster cropped to a wide mug wrap would lose most of the
+   design - see the module docstring for why "cover" vs "contain"
+   matters here). Output lands in the same
+   `output/<niche>/<slug>/metadata.json` shape every other niche
+   produces, so `pipeline.publish_digital` / `pipeline.publish_pod` work
+   on it unchanged:
 
 ```bash
-python -m pipeline.canva_import --niche halloween_vintage_posters_canva \
+python -m pipeline.canva_import --niche halloween_vintage_apparel_canva \
     --variant "Happy Haunting Pumpkin" \
-    --pdf letter_8.5x11=<signed pdf url> a4=<signed pdf url> \
-    --preview <signed png url> \
+    --master-pdf <signed pdf export url, requested with no size param> \
     --canva-design-id DAHUuBX0MfE --canva-edit-url https://www.canva.com/d/...
 ```
 
-Use `--pdf size=url` for designs whose native ratio is close to a
-standard page (e.g. Canva's "poster" type, which is ~A-series ratio) -
-Canva's PDF export can size directly to `a4`/`letter`/`a3`/`legal`. Use
-`--png size=url` instead for designs with a different native ratio (e.g.
-"invitation"/"card" types) to avoid distorting them into a page size that
-doesn't fit - `publish_digital` uploads whichever of PDF/PNG is present as
-the buyer's digital file.
+**One generation, two listings:** the poster and apparel niches for the
+same season share the same `prompts` - generate the design once, then
+import it twice (once into the wall-art niche, once into the apparel
+niche) to get both a paper print listing and a t-shirt/mug listing from
+one Canva generation call.
 
-**Export resolution is capped on Canva's free plan** - in testing, PNG
-exports above roughly 1000-1500px wide failed with a generic "not allowed
-to access design" error, while the same export at 1000px succeeded and
-paper-sized PDF export was unaffected. Once Canva Pro is active,
-re-export any free-plan PNG-based design (like the invitation niche) at
-a higher resolution before selling it - 1000px is noticeably soft for a
-print product.
+**A design's native canvas size varies a lot by `canva_design_type`** -
+"poster" defaults to a large physical poster, "invitation" defaults to a
+modest card size. The invitation niche's small file size isn't
+under-resolution; 300 DPI at invitation size is legitimately a few
+thousand pixels smaller than 300 DPI at poster size because the card is
+physically smaller. Check that a niche's configured sizes are a
+reasonable fit for its `canva_design_type` (`test_every_configured_size_is_a_real_size`
+in `tests/test_generators.py` only checks the size *exists*, not that
+it's a sensible fit).
+
+**Close-up sharpness:** cropping into the poster-sized master at extreme
+zoom shows some softness - the underlying illustration likely has less
+native detail than the huge poster canvas suggests. It reads cleanly at
+normal viewing distance (see the mockups this pipeline produces) but is
+worth re-generating at Canva Pro if you need it to hold up under a tight
+product-photo crop.
 
 ## Notes and caveats
 
 - **Procedural generation is free; Canva generation is not.** The
-  quote-poster/line-art/pattern/apparel/planner niches are drawn with
-  Pillow - no paid AI model, no per-design cost. The `canva` niches call
-  Canva's AI design generation through a connected account and need
-  Canva Pro for full-resolution exports, so there's a real cost/plan
-  dependency there that the rest of the pipeline doesn't have.
+  quote-poster/line-art/pattern/planner niches are drawn with Pillow - no
+  paid AI model, no per-design cost. The `canva` niches call Canva's AI
+  design generation through a connected account, so there's a real
+  cost/plan dependency there that the rest of the pipeline doesn't have.
 - **Etsy policy.** Etsy prohibits fully automated, unreviewed listing
   creation at scale and requires accurate "digital file" / production
   disclosures; that's why the publish scripts default to creating
