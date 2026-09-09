@@ -1,0 +1,138 @@
+# Starter niche definitions for the design pipeline.
+#
+# Each niche maps to one generator in design/generators/ and gives the
+# pipeline everything it needs to produce a batch of finished, listable
+# products: which palettes/motifs/quotes to combine, which physical sizes
+# to export, and SEO copy templates for the Etsy/Printify listing.
+#
+# product_mode: "digital" (Etsy digital download only), "pod" (Printify
+# print-on-demand only), or "both".
+#
+# Feel free to duplicate a niche block and tweak it to make a new one -
+# nothing here is hardcoded into the pipeline scripts.
+
+niches:
+  boho_line_art_wall_decor:
+    type: line_art
+    product_mode: both
+    palettes: [terracotta_boho, sage_minimal, clay_rust, midnight_gold]
+    motifs: [arch, sun, wave, moon_phases]
+    digital_sizes: [poster_18x24, 5x7]
+    pod_size: poster_18x24
+    price_digital: 4.50
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        {motif_title} Boho Line Art Printable | Minimalist {palette_title}
+        Wall Decor | Digital Download Poster
+      description_template: |
+        A minimalist {motif_title} line-art print in a {palette_title} colour
+        palette. Perfect for gallery walls, living rooms, nurseries, and
+        boho-modern interiors.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Ready to print at home, at a local print shop, or order framed
+
+        This is a digital file - no physical item will be shipped.
+        For personal use only; not for resale or redistribution of the file.
+      tags:
+        - boho wall art
+        - line art print
+        - minimalist decor
+        - printable art
+        - digital download
+        - boho decor
+        - arch print
+        - home decor
+        - instant download
+        - wall art print
+        - aesthetic prints
+        - modern boho art
+
+  minimalist_quote_posters:
+    type: quote_poster
+    product_mode: both
+    palettes: [sage_minimal, charcoal_mono, blush_neutral]
+    quotes:
+      - text: "Grow through what you go through"
+        author: null
+      - text: "Do it with intention"
+        author: null
+      - text: "Not all who wander are lost"
+        author: null
+      - text: "Slow down and enjoy the little things"
+        author: null
+      - text: "Bloom where you are planted"
+        author: null
+      - text: "Choose joy, every single day"
+        author: null
+      - text: "This is your sign to begin"
+        author: null
+      - text: "Simplicity is the ultimate sophistication"
+        author: null
+    digital_sizes: [poster_18x24, letter_8.5x11, 5x7]
+    pod_size: poster_18x24
+    price_digital: 3.50
+    price_pod: 22.00
+    seo:
+      title_template: >-
+        "{quote_short}" Quote Poster | Minimalist Typography Print |
+        Printable Wall Art
+      description_template: |
+        A clean, minimalist typography poster reading "{quote}" - printed
+        on a soft {palette_title} background. Looks great alone or mixed
+        into a gallery wall.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Multiple sizes included, see photos for details
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - quote poster
+        - typography print
+        - minimalist wall art
+        - printable quote
+        - motivational print
+        - digital download
+        - inspirational art
+        - farmhouse decor
+        - instant download
+        - aesthetic room decor
+        - dorm decor
+        - office wall art
+
+  boho_digital_paper_pack:
+    type: pattern
+    product_mode: digital
+    palettes: [blush_neutral, terracotta_boho, clay_rust]
+    motifs: [dots, stripes, checker, scallop, arches]
+    digital_sizes: [square_12x12]
+    price_digital: 5.00
+    seo:
+      title_template: >-
+        {motif_title} Digital Paper Pack | {palette_title} Seamless Pattern
+        | Scrapbook & Junk Journal Printable
+      description_template: |
+        A {motif_title} seamless pattern in a {palette_title} colour
+        palette - great for scrapbooking, junk journals, planner covers,
+        card making, and printable backgrounds.
+
+        WHAT YOU GET
+        - High-resolution 12x12in PNG and PDF files (300 DPI)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - digital paper
+        - seamless pattern
+        - journal printable
+        - scrapbook paper
+        - planner cover
+        - digital download
+        - card making
+        - printable background
+        - instant download
+        - craft supplies
+        - pattern design
+        - boho pattern

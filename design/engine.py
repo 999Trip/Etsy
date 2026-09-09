@@ -1,0 +1,152 @@
+"""Shared drawing/export primitives used by every design generator.
+
+Nothing in this file is niche-specific - it's the equivalent of a tiny
+"design system" (canvas sizing, text fitting/wrapping, grain texture,
+export to print-ready PNG/PDF and a web preview JPG) that
+``design/generators/*.py`` build on top of.
+"""
+from __future__ import annotations
+
+import random
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+# Etsy printables are conventionally sold at 300 DPI. Physical (POD)
+# prints use the same DPI; the actual pixel size just needs to match
+# whatever print area the Printify blueprint expects.
+DPI = 300
+
+# Common digital-printable / wall-art sizes, in inches.
+SIZES_IN: dict[str, tuple[float, float]] = {
+    "poster_18x24": (18, 24),
+    "poster_24x36": (24, 36),
+    "letter_8.5x11": (8.5, 11),
+    "a4": (8.27, 11.69),
+    "square_12x12": (12, 12),
+    "5x7": (5, 7),
+}
+
+
+def size_px(size_name: str, dpi: int = DPI) -> tuple[int, int]:
+    w_in, h_in = SIZES_IN[size_name]
+    return int(round(w_in * dpi)), int(round(h_in * dpi))
+
+
+class Canvas:
+    """A PIL image + draw context with a few export helpers."""
+
+    def __init__(self, size: tuple[int, int], background: str):
+        self.image = Image.new("RGB", size, background)
+        self.draw = ImageDraw.Draw(self.image)
+        self.size = size
+
+    @property
+    def w(self) -> int:
+        return self.size[0]
+
+    @property
+    def h(self) -> int:
+        return self.size[1]
+
+    def add_grain(self, opacity: int = 10, seed: int | None = None) -> None:
+        """Overlay a very subtle noise texture for a less "flat vector" look."""
+        rng = random.Random(seed)
+        noise = Image.new("L", self.size)
+        noise.putdata([rng.randint(0, 255) for _ in range(self.w * self.h)])
+        noise = noise.point(lambda p: 128 + (p - 128) * opacity // 100)
+        noise_rgb = Image.merge("RGB", (noise, noise, noise))
+        self.image = Image.blend(self.image, noise_rgb, opacity / 400)
+        self.draw = ImageDraw.Draw(self.image)
+
+    def vignette(self, strength: float = 0.15) -> None:
+        """Very light edge darkening to add depth to flat backgrounds."""
+        mask = Image.new("L", self.size, 0)
+        mdraw = ImageDraw.Draw(mask)
+        pad = int(min(self.size) * 0.08)
+        mdraw.ellipse([-pad, -pad, self.w + pad, self.h + pad], fill=255)
+        mask = mask.filter(ImageFilter.GaussianBlur(min(self.size) // 6))
+        dark = Image.new("RGB", self.size, (0, 0, 0))
+        self.image = Image.composite(self.image, dark, mask.point(lambda p: 255 - int(strength * (255 - p))))
+        self.draw = ImageDraw.Draw(self.image)
+
+    def save_png(self, path: str | Path) -> None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        self.image.save(path, "PNG")
+
+    def save_pdf(self, path: str | Path, dpi: int = DPI) -> None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        self.image.save(path, "PDF", resolution=dpi)
+
+    def save_preview_jpg(self, path: str | Path, max_dim: int = 2000, quality: int = 87) -> None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        preview = self.image.copy()
+        preview.thumbnail((max_dim, max_dim))
+        preview.convert("RGB").save(path, "JPEG", quality=quality)
+
+
+def wrap_text(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, max_width: int) -> str:
+    """Greedy word-wrap that respects explicit newlines in the input."""
+    out_lines: list[str] = []
+    for paragraph in text.split("\n"):
+        words = paragraph.split()
+        if not words:
+            out_lines.append("")
+            continue
+        line = words[0]
+        for word in words[1:]:
+            trial = f"{line} {word}"
+            if draw.textlength(trial, font=font) <= max_width:
+                line = trial
+            else:
+                out_lines.append(line)
+                line = word
+        out_lines.append(line)
+    return "\n".join(out_lines)
+
+
+def fit_text_block(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    font_path: str,
+    max_width: int,
+    max_height: int,
+    start_size: int = 240,
+    min_size: int = 24,
+    step: int = 4,
+    line_spacing: float = 0.4,
+) -> tuple[ImageFont.FreeTypeFont, str, int]:
+    """Find the largest font size (and matching word-wrap) that fits the box.
+
+    Returns (font, wrapped_text, spacing_px).
+    """
+    size = start_size
+    while size >= min_size:
+        font = ImageFont.truetype(font_path, size)
+        wrapped = wrap_text(draw, text, font, max_width)
+        spacing = int(size * line_spacing)
+        bbox = draw.multiline_textbbox((0, 0), wrapped, font=font, align="center", spacing=spacing)
+        w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+        if w <= max_width and h <= max_height:
+            return font, wrapped, spacing
+        size -= step
+    font = ImageFont.truetype(font_path, min_size)
+    spacing = int(min_size * line_spacing)
+    return font, wrap_text(draw, text, font, max_width), spacing
+
+
+def draw_centered_multiline(
+    canvas: Canvas,
+    text: str,
+    font: ImageFont.FreeTypeFont,
+    fill: str,
+    center: tuple[int, int],
+    spacing: int,
+) -> tuple[int, int, int, int]:
+    """Draw text centered on ``center``. Returns the bounding box drawn."""
+    bbox = canvas.draw.multiline_textbbox((0, 0), text, font=font, align="center", spacing=spacing)
+    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    x = center[0] - w / 2 - bbox[0]
+    y = center[1] - h / 2 - bbox[1]
+    canvas.draw.multiline_text((x, y), text, font=font, fill=fill, align="center", spacing=spacing)
+    return (int(x), int(y), int(x + w), int(y + h))
