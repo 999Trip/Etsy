@@ -5,8 +5,12 @@ print-on-demand physical products) end to end:
 
 1. **Design** - procedurally generate artwork (typography quote posters,
    boho line art, seamless patterns, apparel/mug graphics, and printable
-   planners/trackers) with Pillow. No paid AI image generation is used -
-   everything is drawn from code, for free.
+   planners/trackers) with Pillow, for free, with no paid AI image model
+   in the loop. Optionally supplement that with illustrated/painterly
+   designs generated through a connected Canva account (see "Illustrated
+   designs via Canva" below) for styles the procedural generators can't
+   produce - hand-lettered script, watercolor florals, distressed vintage
+   textures.
 2. **Digital downloads** - upload the generated files straight to Etsy as
    digital-download listings via the Etsy Open API v3.
 3. **Print-on-demand** - upload the generated artwork to Printify, create
@@ -34,6 +38,11 @@ each one targets:
 - **Original boho/minimalist starter set** -
   `boho_line_art_wall_decor`, `minimalist_quote_posters`,
   `boho_digital_paper_pack`.
+- **Canva-generated illustrated designs** - `halloween_vintage_posters_canva`,
+  `fall_party_invitations_canva`. These target styles (illustrated retro
+  artwork, hand-lettered invitations) the procedural generators can't
+  produce - see "Illustrated designs via Canva" below for how generation
+  works differently for this niche type.
 
 ```
 design/        procedural art generators (quote posters, line art, patterns)
@@ -187,15 +196,56 @@ inverted/white version of the art - swap `palette["ink"]` for a light
 color when generating that batch, or recolor in Printify's product editor
 after uploading.
 
+## 5. Illustrated designs via Canva (optional)
+
+Niches with `type: canva` in `config/niches.yaml` (currently
+`halloween_vintage_posters_canva`, `fall_party_invitations_canva`) work
+differently from every other niche: generation is **interactive, not
+scriptable**. The Canva MCP tools (`generate-design`,
+`create-design-from-candidate`, `export-design`) are only callable by
+Claude in a live conversation - there's no standalone `python -m
+pipeline.generate --niche halloween_vintage_posters_canva` for these.
+
+To generate one: ask Claude (with a Canva account connected) to generate
+a design using one of the `prompts` recipes listed under that niche in
+`config/niches.yaml`. Claude will call the Canva tools, then run
+`pipeline.canva_import` with the resulting export URLs to package the
+result into the exact same `output/<niche>/<slug>/metadata.json` shape
+every other niche produces - so `pipeline.publish_digital` works on it
+unchanged:
+
+```bash
+python -m pipeline.canva_import --niche halloween_vintage_posters_canva \
+    --variant "Happy Haunting Pumpkin" \
+    --pdf letter_8.5x11=<signed pdf url> a4=<signed pdf url> \
+    --preview <signed png url> \
+    --canva-design-id DAHUuBX0MfE --canva-edit-url https://www.canva.com/d/...
+```
+
+Use `--pdf size=url` for designs whose native ratio is close to a
+standard page (e.g. Canva's "poster" type, which is ~A-series ratio) -
+Canva's PDF export can size directly to `a4`/`letter`/`a3`/`legal`. Use
+`--png size=url` instead for designs with a different native ratio (e.g.
+"invitation"/"card" types) to avoid distorting them into a page size that
+doesn't fit - `publish_digital` uploads whichever of PDF/PNG is present as
+the buyer's digital file.
+
+**Export resolution is capped on Canva's free plan** - in testing, PNG
+exports above roughly 1000-1500px wide failed with a generic "not allowed
+to access design" error, while the same export at 1000px succeeded and
+paper-sized PDF export was unaffected. Once Canva Pro is active,
+re-export any free-plan PNG-based design (like the invitation niche) at
+a higher resolution before selling it - 1000px is noticeably soft for a
+print product.
+
 ## Notes and caveats
 
-- **No AI image generation.** Every design is drawn procedurally with
-  Pillow (typography layout, geometric line art, tileable patterns, icon
-  silhouettes for apparel/mug graphics). That keeps this pipeline free to
-  run and avoids any AI-generated-content
-  disclosure/IP questions, but it also means the visual variety is bounded
-  by the generators in `design/generators/` - extend them (or add a new
-  generator + niche) to expand into new styles.
+- **Procedural generation is free; Canva generation is not.** The
+  quote-poster/line-art/pattern/apparel/planner niches are drawn with
+  Pillow - no paid AI model, no per-design cost. The `canva` niches call
+  Canva's AI design generation through a connected account and need
+  Canva Pro for full-resolution exports, so there's a real cost/plan
+  dependency there that the rest of the pipeline doesn't have.
 - **Etsy policy.** Etsy prohibits fully automated, unreviewed listing
   creation at scale and requires accurate "digital file" / production
   disclosures; that's why the publish scripts default to creating

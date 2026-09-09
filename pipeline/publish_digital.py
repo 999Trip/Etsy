@@ -73,8 +73,12 @@ def publish_batch(
         if preview and Path(preview).exists():
             client.upload_listing_image(shop_id, listing_id, preview, rank=1)
 
-        for rank, (size_name, pdf_path) in enumerate(metadata.get("files", {}).get("pdf", {}).items(), start=1):
-            client.upload_listing_file(shop_id, listing_id, pdf_path, name=f"{metadata['design_id']}_{size_name}", rank=rank)
+        # Prefer PDF as the deliverable file; fall back to PNG for designs
+        # that only have one (e.g. Canva exports whose native aspect ratio
+        # doesn't map to a standard PDF paper size - see canva_import.py).
+        deliverable_files = metadata.get("files", {}).get("pdf") or metadata.get("files", {}).get("png", {})
+        for rank, (size_name, file_path) in enumerate(deliverable_files.items(), start=1):
+            client.upload_listing_file(shop_id, listing_id, file_path, name=f"{metadata['design_id']}_{size_name}", rank=rank)
 
         if activate:
             client.activate_listing(shop_id, listing_id)

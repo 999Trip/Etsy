@@ -41,12 +41,12 @@ def load_niches(path: Path = NICHES_PATH) -> dict:
         return yaml.safe_load(f)["niches"]
 
 
-def _slugify(text: str) -> str:
+def slugify(text: str) -> str:
     text = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
     return text[:60] or "design"
 
 
-def _render_seo(niche: dict, context: dict) -> dict:
+def render_seo(niche: dict, context: dict) -> dict:
     title = re.sub(r"\s+", " ", niche["seo"]["title_template"].format(**context)).strip()
     if len(title) > ETSY_MAX_TITLE:
         title = title[:ETSY_MAX_TITLE].rsplit(" ", 1)[0]
@@ -120,23 +120,23 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
                 "quote": quote_text,
                 "quote_short": textwrap.shorten(quote_text, width=40, placeholder="..."),
             }
-            design_slug = _slugify(f"{niche_name}-{quote_text}-{palette_name}-{i}")
+            design_slug = slugify(f"{niche_name}-{quote_text}-{palette_name}-{i}")
         elif niche["type"] == "apparel_graphic":
             motif, text = extra
             gen_kwargs = {"motif": motif, "text": text}
             context = {**base_context, "motif_title": humanize(motif), "text": text}
-            design_slug = _slugify(f"{niche_name}-{motif}-{text}-{palette_name}-{i}")
+            design_slug = slugify(f"{niche_name}-{motif}-{text}-{palette_name}-{i}")
         elif niche["type"] == "planner":
             variant = extra
             context = {**base_context, "variant_title": humanize(variant)}
             header = niche["header_template"].format(**context)
             gen_kwargs = {"template": niche["planner_template"], "header": header}
-            design_slug = _slugify(f"{niche_name}-{variant}-{palette_name}-{i}")
+            design_slug = slugify(f"{niche_name}-{variant}-{palette_name}-{i}")
         else:
             motif = extra
             gen_kwargs = {"motif": motif}
             context = {**base_context, "motif_title": humanize(motif)}
-            design_slug = _slugify(f"{niche_name}-{motif}-{palette_name}-{i}")
+            design_slug = slugify(f"{niche_name}-{motif}-{palette_name}-{i}")
 
         design_dir = out_dir / design_slug
         files: dict[str, dict[str, str]] = {}
@@ -159,7 +159,7 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
             if size_name == preview_size:
                 canvas.save_preview_jpg(preview_path, backdrop=preview_backdrop)
 
-        seo = _render_seo(niche, context)
+        seo = render_seo(niche, context)
 
         metadata = {
             "design_id": design_slug,

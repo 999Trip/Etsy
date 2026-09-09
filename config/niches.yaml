@@ -498,3 +498,126 @@ niches:
         - task list pdf
         - organizer pdf
         - cozy planner
+
+  # --- Canva-generated (type: canva) -----------------------------------
+  # Generation is interactive-only: Claude calls the Canva MCP tools
+  # (generate-design -> create-design-from-candidate -> export-design)
+  # using the query recipes below, then runs `pipeline.canva_import` with
+  # the resulting export URLs to package the result into this same
+  # output/<niche>/<slug>/metadata.json shape - see pipeline/canva_import.py.
+  # Illustrated/painterly artwork (vintage textures, hand-lettered script,
+  # watercolor florals) that the procedural Pillow generators can't
+  # produce, per 2026 trend research showing vintage/illustrated styles
+  # outperforming flat-vector minimalism this season.
+
+  halloween_vintage_posters_canva:
+    type: canva
+    product_mode: digital
+    canva_design_type: poster
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 5.00
+    prompts:
+      - label: "Happy Haunting Pumpkin"
+        query: >-
+          Vintage retro Halloween poster, 1970s groovy typography, "Happy
+          Haunting" text, warm burnt-orange and deep purple color palette,
+          distressed illustrated pumpkin and moon, nostalgic autumn
+          aesthetic, no photographic people
+      - label: "Basic Witch"
+        query: >-
+          Vintage retro Halloween poster, hand-lettered script text
+          reading "Basic Witch", illustrated witch hat and crescent moon,
+          distressed paper texture, deep purple and mustard color palette,
+          no photographic people
+      - label: "Vintage Black Cat"
+        query: >-
+          Vintage retro Halloween poster, retro illustrated black cat
+          silhouette under a full moon, hand-lettered "Meow-y Halloween"
+          text, distressed texture, burnt orange and charcoal palette, no
+          photographic people
+      - label: "Haunted House"
+        query: >-
+          Vintage retro Halloween poster, illustrated haunted house on a
+          hill under a starry night sky, groovy 1970s typography reading
+          "Trick or Treat", distressed texture, deep purple and orange
+          palette, no photographic people
+    seo:
+      title_template: >-
+        {variant_title} Vintage Halloween Poster | Retro Illustrated Wall
+        Art | Digital Download Printable
+      description_template: |
+        A {variant_title} vintage-style Halloween poster - hand-lettered
+        typography and illustrated retro artwork with a distressed,
+        nostalgic finish. Printable wall art for gallery walls, party
+        decor, or a front-door sign.
+
+        WHAT YOU GET
+        - High-resolution print-ready PDF files (US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - vintage halloween
+        - retro halloween
+        - halloween poster
+        - illustrated art
+        - printable art
+        - digital download
+        - halloween decor
+        - retro poster
+        - spooky season
+        - instant download
+        - wall art print
+        - autumn decor
+
+  fall_party_invitations_canva:
+    type: canva
+    product_mode: digital
+    canva_design_type: invitation
+    digital_sizes: [invite_native]
+    price_digital: 6.00
+    prompts:
+      - label: "Youre Invited Pumpkins"
+        query: >-
+          Fall harvest party invitation, warm cottagecore aesthetic,
+          hand-lettered "You're Invited" script text, pumpkins and autumn
+          leaves illustration, cream and terracotta color palette,
+          elegant editable template with blank space for party details
+      - label: "Halloween Bash Invite"
+        query: >-
+          Halloween party invitation, playful hand-lettered "You're
+          Invited to a Halloween Bash" text, illustrated bats and
+          jack-o-lanterns, deep purple and orange palette, blank space for
+          party details
+      - label: "Friendsgiving Invite"
+        query: >-
+          Friendsgiving dinner party invitation, warm autumn watercolor
+          illustration of pumpkins and wheat, elegant script text reading
+          "You're Invited", cream and rust color palette, blank space for
+          event details
+    seo:
+      title_template: >-
+        {variant_title} Editable Invitation Template | Fall Party
+        Printable Invite | Digital Download
+      description_template: |
+        A {variant_title} invitation template - illustrated fall artwork
+        with hand-lettered typography and open space to add your own
+        party details. Print at home or a local print shop.
+
+        WHAT YOU GET
+        - A high-resolution PNG file, ready to add your text in any photo
+          editor, or request a fully editable Canva link at checkout
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - fall invitation
+        - halloween invite
+        - party invitation
+        - editable template
+        - printable invite
+        - digital download
+        - fall party decor
+        - instant download
+        - autumn invitation
+        - harvest party
+        - invite template
+        - cottagecore invite

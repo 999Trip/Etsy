@@ -61,7 +61,7 @@ class NicheConfigTests(unittest.TestCase):
         niches = load_niches()
         self.assertTrue(niches)
         for name, niche in niches.items():
-            self.assertIn(niche["type"], ("quote_poster", "line_art", "pattern", "apparel_graphic", "planner"), name)
+            self.assertIn(niche["type"], ("quote_poster", "line_art", "pattern", "apparel_graphic", "planner", "canva"), name)
             for tag in niche["seo"]["tags"]:
                 self.assertLessEqual(len(tag), 20, f"{name}: tag '{tag}' exceeds Etsy's 20-char limit")
             self.assertLessEqual(len(niche["seo"]["tags"]), 13, f"{name}: more than 13 tags")
