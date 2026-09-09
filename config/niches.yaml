@@ -717,3 +717,170 @@ niches:
         - box print tee
         - autumn apparel
         - pumpkin shirt
+
+  # --- Evergreen POD apparel/mugs (not tied to the fall/Halloween line -
+  # --- picked from 2026 trend research on what's actually selling now) -
+
+  retro_groovy_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Good Vibes Only"
+        query: >-
+          Retro 1970s groovy poster design, bold wavy typography reading
+          "Good Vibes Only", psychedelic sunburst background, warm
+          mustard-orange and brown color palette, no photographic people
+      - label: "Stay Groovy"
+        query: >-
+          Retro 1970s groovy poster design, bold bubble typography
+          reading "Stay Groovy", rainbow wave and daisy illustrations,
+          warm retro color palette, no photographic people
+      - label: "Choose Happy"
+        query: >-
+          Retro 1970s groovy poster design, round bubble typography
+          reading "Choose Happy", smiley face and psychedelic swirl
+          illustration, warm orange and teal palette, no photographic
+          people
+      - label: "Just Vibin"
+        query: >-
+          Retro 1970s groovy poster design, bold wavy typography reading
+          "Just Vibin'", illustrated retro sun and clouds, warm
+          terracotta and cream palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Retro Groovy Graphic | 70s Style T-Shirt, Hoodie
+        & Mug
+      description_template: |
+        A "{variant_title}" retro 1970s-style groovy graphic, printed as
+        a bold box-print design - available on t-shirts, sweatshirts,
+        hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - retro groovy shirt
+        - 70s style tee
+        - groovy shirt
+        - retro graphic tee
+        - vintage 70s shirt
+        - good vibes shirt
+        - retro mug
+        - groovy gift
+        - boho graphic tee
+        - aesthetic tee
+        - retro hoodie
+        - groovy mug
+
+  occupation_gift_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Dog Mom"
+        query: >-
+          Illustrated retro-style poster design, bold hand-lettered
+          typography reading "Dog Mom", cute illustrated dog paw prints
+          and a bone, warm earthy color palette, no photographic people
+      - label: "Cat Dad"
+        query: >-
+          Illustrated retro-style poster design, bold hand-lettered
+          typography reading "Cat Dad", cute illustrated cat silhouette
+          and paw prints, warm earthy color palette, no photographic
+          people
+      - label: "Nurse Life"
+        query: >-
+          Illustrated poster design, bold typography reading "Nurse
+          Life", illustrated stethoscope and heart, calming teal and
+          cream color palette, no photographic people
+      - label: "Teacher Off Duty"
+        query: >-
+          Illustrated retro poster design, playful hand-lettered
+          typography reading "Teacher Off Duty", illustrated apple and
+          pencil, warm color palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Funny Gift Graphic | Occupation & Pet Parent
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" illustrated gift graphic, printed as a bold
+        box-print design - available on t-shirts, sweatshirts, hoodies,
+        and mugs. A fun, low-effort gift for the occasion or pet-parent
+        in your life.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - dog mom shirt
+        - cat dad shirt
+        - nurse shirt
+        - teacher shirt
+        - funny gift tee
+        - occupation gift
+        - pet parent gift
+        - nurse mug
+        - teacher gift
+        - graphic tee
+        - funny mug
+        - gift for her
+
+  america_250_patriotic_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    # 2026 is the USA's 250th anniversary (semiquincentennial) - a
+    # major, dated cultural moment driving real patriotic-gift demand
+    # this year specifically, not just an evergreen theme.
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "America 250"
+        query: >-
+          Vintage patriotic poster design, bold distressed typography
+          reading "1776-2026 America 250", illustrated American flag and
+          stars, red white and blue color palette, retro textured, no
+          photographic people
+      - label: "We The People"
+        query: >-
+          Vintage patriotic poster design, bold distressed typography
+          reading "We The People", illustrated bald eagle and stars, red
+          white and blue palette, retro textured, no photographic people
+      - label: "Proud American"
+        query: >-
+          Vintage patriotic poster design, hand-lettered typography
+          reading "Proud American", illustrated stars and stripes,
+          distressed texture, red white and blue palette, no
+          photographic people
+      - label: "Land of the Free"
+        query: >-
+          Vintage patriotic poster design, bold typography reading "Land
+          of the Free", illustrated fireworks and flag, distressed
+          texture, red white and blue palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Patriotic Graphic | America 250th Anniversary
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" vintage-style patriotic graphic celebrating
+        America's 250th anniversary, printed as a bold box-print design -
+        available on t-shirts, sweatshirts, hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - america 250 shirt
+        - patriotic shirt
+        - 4th of july shirt
+        - usa graphic tee
+        - patriotic gift
+        - american flag tee
+        - vintage usa shirt
+        - patriotic mug
+        - freedom shirt
+        - retro america tee
+        - usa gift
+        - proud american
