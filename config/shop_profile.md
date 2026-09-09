@@ -1,4 +1,4 @@
-# Shop profile: WanderRootsCo
+# Shop profile: WanderRootsCoDesigns
 
 Reference copy for setting up the Etsy seller account. Etsy's **shop
 name** (used in your shop URL) and **shop title** (a separate, longer
@@ -7,14 +7,16 @@ field shown under your shop name) have different rules - see below.
 ## Shop name
 
 ```
-WanderRootsCo
+WanderRootsCoDesigns
 ```
 
-13 characters, letters only - fits Etsy's shop name rules (4-20
+20 characters, letters only - fits Etsy's shop name rules (4-20
 characters, letters/numbers only, no spaces/symbols, unique across all
-shops/usernames). Availability was spot-checked via web search and
-turned up no existing shop with this name, but that's a best-effort
-check, not a guarantee - Etsy will tell you definitively at signup.
+shops/usernames). The original pick, `WanderRootsCo`, turned out to be
+taken once actually submitted in Etsy's signup flow; this is the variant
+Etsy's own name generator suggested at that point (checked against their
+live database, not a guess), and it keeps the same prefix so it still
+matches the email/branding already set up around "WanderRootsCo."
 
 Etsy allows **one free shop name change** later if needed; after that
 you'd need to contact Etsy Support with a reason.
