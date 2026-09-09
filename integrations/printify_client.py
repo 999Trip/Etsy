@@ -17,6 +17,9 @@ from pathlib import Path
 from typing import Any
 
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 API_BASE = "https://api.printify.com/v1"
 
