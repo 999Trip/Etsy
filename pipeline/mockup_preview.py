@@ -50,7 +50,7 @@ def main() -> None:
     cover = False
     if design_path.is_dir():
         metadata = json.loads((design_path / "metadata.json").read_text())
-        cover = metadata.get("generator_type") in COVER_GENERATOR_TYPES
+        cover = metadata.get("generator_type") in COVER_GENERATOR_TYPES or metadata.get("pod_fit") == "cover"
         png_files = metadata.get("files", {}).get("png", {})
         apparel_png = next((p for s, p in png_files.items() if "apparel" in s), None)
         mug_png = next((p for s, p in png_files.items() if "mug" in s), None)

@@ -885,25 +885,57 @@ niches:
         - usa gift
         - proud american
 
-  halloween_pattern_tumblers:
-    type: pattern
+  halloween_pattern_tumblers_canva:
+    type: canva
     product_mode: pod
-    # All-over scattered-icon wraps for 40oz tumblers and mugs - original
-    # artwork built from our own icon library (design/motifs.py), in the
-    # same visual genre as trending tumbler wraps (starry night w/ bats,
-    # cream w/ cats & pumpkins & ghosts, purple w/ cats & pumpkins &
-    # moons, jack-o'-lantern faces) without copying any specific existing
-    # commercial product's design.
-    palettes: [midnight_gold, terracotta_boho, witchy_purple, pumpkin_orange]
-    motifs: [night_sky, cozy_critters, witchy_purple, jack_o_lanterns]
+    canva_design_type: poster
+    # All-over pattern, not a box-print graphic - crop-to-fill the POD
+    # print area edge to edge instead of the default "contain" fit.
+    pod_fit: cover
+    # All-over repeating patterns for 40oz tumblers and mugs, Canva-sourced
+    # per user preference (see halloween_pattern_tumblers_canva history) -
+    # original artwork in the same visual genre as trending tumbler wraps
+    # (purple w/ cat-in-pumpkin + jack-o'-lanterns, cozy critters, starry
+    # night, all-over jack-o'-lantern faces) without copying any specific
+    # existing commercial product's design.
     pod_sizes: [mug_9x4, tumbler_9x5]
     price_pod: 26.00
+    prompts:
+      - label: Cat in Pumpkin
+        query: >-
+          A seamless all-over repeating pattern for a tumbler wrap print,
+          Halloween theme: a black cat peeking out of a jack-o'-lantern as
+          the main motif, smaller jack-o'-lantern faces scattered around,
+          white polka dots and small stars for texture, on a purple
+          background, flat bold illustrated icon style, no text,
+          edge-to-edge full-bleed pattern
+      - label: Cozy Critters
+        query: >-
+          A seamless all-over repeating pattern design for a tumbler/mug
+          wrap print, cozy Halloween theme: black cats, jack-o'-lantern
+          pumpkins, and ghosts scattered across a warm background, flat
+          bold illustrated icon style, no text, edge-to-edge full-bleed
+          pattern, trendy aesthetic
+      - label: Night Sky
+        query: >-
+          A seamless all-over repeating pattern design for a tumbler/mug
+          wrap print, Halloween night sky theme: bats, crescent moons, and
+          stars scattered across a deep midnight-purple background, flat
+          bold illustrated icon style, no text, edge-to-edge full-bleed
+          pattern
+      - label: Jack-o'-Lanterns
+        query: >-
+          A seamless all-over repeating pattern design for a tumbler/mug
+          wrap print, Halloween theme: illustrated jack-o'-lantern pumpkin
+          faces with varied expressions scattered edge to edge, flat bold
+          illustrated icon style, warm orange and black palette, no text,
+          full-bleed pattern
     seo:
       title_template: >-
-        {motif_title} Halloween Pattern | All-Over Print Tumbler & Mug
+        {variant_title} Halloween Pattern | All-Over Print Tumbler & Mug
         Wrap Design
       description_template: |
-        A {motif_title} all-over Halloween pattern, wrapped edge to edge
+        A {variant_title} all-over Halloween pattern, wrapped edge to edge
         on a 40oz tumbler or mug - a bold, colorful print that stands out
         on the shelf.
 
@@ -922,3 +954,63 @@ niches:
         - cup wrap design
         - witchy tumbler
         - pumpkin tumbler
+
+  fall_halloween_calendar_printable_canva:
+    type: canva
+    product_mode: digital
+    canva_design_type: document
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 3.50
+    prompts:
+      - label: October 2026 Halloween
+        query: >-
+          A printable monthly calendar page for October 2026, Halloween
+          theme, "October 2026" as the month title at the top, a full
+          7-column by 6-row grid with day-of-week headers (Sun-Sat) and
+          numbered date boxes 1-31, illustrated pumpkins bats and ghosts
+          as decorative border accents, clean modern minimalist layout,
+          plenty of white space inside each date box for handwritten notes
+      - label: November 2026 Fall
+        query: >-
+          A printable monthly calendar page for November 2026, cozy autumn
+          theme, "November 2026" as the month title at the top, a full
+          7-column by 6-row grid with day-of-week headers (Sun-Sat) and
+          numbered date boxes 1-30, illustrated fall leaves pumpkins and
+          acorns as decorative border accents, clean modern minimalist
+          layout, plenty of white space inside each date box for
+          handwritten notes
+      - label: Undated Fall Planner
+        query: >-
+          An undated printable monthly calendar page, cozy autumn theme, a
+          blank "Month" title placeholder at the top, a full 7-column by
+          6-row grid with day-of-week headers only (Sun-Sat, no dates
+          filled in), illustrated fall leaves and pumpkins as decorative
+          border accents, clean modern minimalist layout, plenty of white
+          space inside each box for handwritten notes
+    seo:
+      title_template: >-
+        {variant_title} Printable Calendar | Fall Halloween Monthly
+        Planner Page | Instant Download
+      description_template: |
+        A {variant_title} printable calendar page - a cozy, illustrated
+        way to plan out your month.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - fall calendar
+        - halloween calendar
+        - printable calendar
+        - monthly planner
+        - october calendar
+        - november calendar
+        - digital download
+        - instant download
+        - fall printable
+        - autumn planner
+        - cozy planner
+        - desk calendar

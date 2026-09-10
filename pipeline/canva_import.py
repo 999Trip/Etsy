@@ -71,22 +71,29 @@ def _rasterize_master(pdf_path: Path) -> Image.Image:
     return image.convert("RGB")
 
 
-def _crop_to_ratio(master: Image.Image, target_w: int, target_h: int) -> Image.Image:
-    """Center-crop `master` to the target aspect ratio, then resize to
-    the exact target pixel size. Right for a paper size a printable must
-    fill edge to edge (letter, a4, 5x7, ...) - wrong for a POD print area
-    whose ratio doesn't resemble the artwork's own (a tall poster cropped
-    to a wide mug wrap keeps only a thin horizontal sliver, losing the
-    title entirely) - use `_fit_within` for those instead."""
+def _crop_to_ratio(master: Image.Image, target_w: int, target_h: int, anchor: float = 0.5) -> Image.Image:
+    """Crop `master` to the target aspect ratio, then resize to the exact
+    target pixel size. Right for a paper size a printable must fill edge
+    to edge (letter, a4, 5x7, ...) - wrong for a POD print area whose
+    ratio doesn't resemble the artwork's own (a tall poster cropped to a
+    wide mug wrap keeps only a thin horizontal sliver, losing the title
+    entirely) - use `_fit_within` for those instead.
+
+    `anchor` (0-1) picks where along the cropped axis the slice is taken
+    from - 0.5 (default) centers it, 0 takes the top/left edge, 1 the
+    bottom/right. A tall portrait master cropped down to a short wide
+    strip only shows ~1/3 of the original height, so if the composition's
+    focal point isn't centered vertically, center-cropping can cut right
+    through it - override anchor to keep the actual subject in frame."""
     src_ratio = master.width / master.height
     target_ratio = target_w / target_h
     if src_ratio > target_ratio:
         new_w = int(round(master.height * target_ratio))
-        x0 = (master.width - new_w) // 2
+        x0 = int(round((master.width - new_w) * anchor))
         cropped = master.crop((x0, 0, x0 + new_w, master.height))
     else:
         new_h = int(round(master.width / target_ratio))
-        y0 = (master.height - new_h) // 2
+        y0 = int(round((master.height - new_h) * anchor))
         cropped = master.crop((0, y0, master.width, y0 + new_h))
     return cropped.resize((target_w, target_h), Image.LANCZOS)
 
@@ -110,6 +117,7 @@ def import_design(
     canva_edit_url: str | None = None,
     out_dir: Path | None = None,
     price_override: float | None = None,
+    pod_crop_anchor_override: float | None = None,
 ) -> dict:
     niches = load_niches()
     if niche_name not in niches:
@@ -156,9 +164,15 @@ def import_design(
             preview.thumbnail((1600, 1600))
             preview.save(preview_path, "JPEG", quality=87)
 
+    pod_fit = niche.get("pod_fit", "contain")
+    pod_crop_anchor = pod_crop_anchor_override if pod_crop_anchor_override is not None else niche.get("pod_crop_anchor", 0.5)
     for size_name in pod_sizes:
         w, h = size_px(size_name)
-        derived = _fit_within(master, w, h)
+        derived = (
+            _crop_to_ratio(master, w, h, anchor=pod_crop_anchor)
+            if pod_fit == "cover"
+            else _fit_within(master, w, h)
+        )
 
         png_path = design_dir / f"{size_name}.png"
         derived.save(png_path, "PNG")
@@ -186,6 +200,7 @@ def import_design(
         "canva_edit_url": canva_edit_url,
         "variant": variant,
         "generator_type": "canva",
+        "pod_fit": pod_fit,
         "title": seo["title"],
         "description": seo["description"],
         "tags": seo["tags"],
@@ -211,6 +226,13 @@ def main() -> None:
     parser.add_argument("--canva-edit-url", default=None, help="The Canva edit URL, saved for reference/future edits")
     parser.add_argument("--out", default=None, help="Output directory (default: output/<niche>)")
     parser.add_argument("--price", type=float, default=None, help="Override the niche's default price_digital/price_pod")
+    parser.add_argument(
+        "--crop-anchor",
+        type=float,
+        default=None,
+        help="0-1, where a pod_fit:cover crop is taken from along the cropped axis (0.5=center, default). "
+        "Override when the composition's focal point isn't centered - see _crop_to_ratio docstring.",
+    )
     args = parser.parse_args()
 
     out_dir = Path(args.out) if args.out else None
@@ -223,6 +245,7 @@ def main() -> None:
         canva_edit_url=args.canva_edit_url,
         out_dir=out_dir,
         price_override=args.price,
+        pod_crop_anchor_override=args.crop_anchor,
     )
     print(f"Imported {metadata['design_id']} -> {metadata['title'][:70]}")
 
