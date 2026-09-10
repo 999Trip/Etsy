@@ -30,6 +30,11 @@ SIZES_IN: dict[str, tuple[float, float]] = {
     "apparel_12x16": (12, 16),  # DTG-friendly design area for tees/sweatshirts/hoodies
     "mug_9x4": (9, 4),  # roughly the wrap-around print area on an 11oz mug
     "tumbler_9x5": (9, 5),  # approximate wrap print area for a 30-40oz handle tumbler
+    # Straight-walled 40oz tumbler (Printify blueprint 1715, "Smart
+    # Printee" provider) - placeholder is 3710x2817px; sized in inches
+    # so 300 DPI lands almost exactly on that pixel count, for a true
+    # full-bleed fit at scale=1.0 rather than needing an overscale hack.
+    "tumbler_40oz_straight": (12.4, 9.4),
 }
 
 

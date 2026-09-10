@@ -898,13 +898,15 @@ niches:
     # (purple w/ cat-in-pumpkin + jack-o'-lanterns, cozy critters, starry
     # night, all-over jack-o'-lantern faces) without copying any specific
     # existing commercial product's design.
-    pod_sizes: [mug_9x4, tumbler_9x5]
-    # $47.99: Printify's Harrier 40oz tumbler blueprint costs $31.86 to
-    # produce - the prior $26 default (copied from the deprecated
-    # procedural niche) was actually a loss on every sale. This price
-    # gives a ~20-25% margin after Etsy's ~9.5% fees, in line with
-    # comparable custom 40oz tumblers on Etsy (commonly $35+).
-    price_pod: 47.99
+    pod_sizes: [mug_9x4, tumbler_40oz_straight]
+    # Blueprint 1715 ("Vacuum Thermal Tumbler, 40oz", Smart Printee
+    # provider), not 1509 ("Harrier") - Harrier tapers to a narrow
+    # unprinted white foot and costs $31.86; this one has straight walls
+    # (near-full-height print coverage), costs $13.96, and offers 12
+    # colors instead of just white. $32.99 gives a healthier ~35%+
+    # margin after Etsy's ~9.5% fees than Harrier's $47.99 did, and is
+    # more competitive against comparable Etsy tumbler listings.
+    price_pod: 32.99
     prompts:
       - label: Cat in Pumpkin
         query: >-
