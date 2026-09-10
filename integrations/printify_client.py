@@ -156,3 +156,10 @@ class PrintifyClient:
 
     def get_product(self, shop_id: str, product_id: str) -> dict:
         return self._request("GET", f"/shops/{shop_id}/products/{product_id}.json")
+
+    def update_product_price(self, shop_id: str, product_id: str, price_cents: int) -> dict:
+        """Update every variant's price on an existing product (e.g. to
+        correct a mispriced draft/live product)."""
+        product = self.get_product(shop_id, product_id)
+        variants = [{"id": v["id"], "price": price_cents, "is_enabled": v["is_enabled"]} for v in product["variants"]]
+        return self._request("PUT", f"/shops/{shop_id}/products/{product_id}.json", json={"variants": variants})

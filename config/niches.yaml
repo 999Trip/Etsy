@@ -899,7 +899,12 @@ niches:
     # night, all-over jack-o'-lantern faces) without copying any specific
     # existing commercial product's design.
     pod_sizes: [mug_9x4, tumbler_9x5]
-    price_pod: 26.00
+    # $47.99: Printify's Harrier 40oz tumbler blueprint costs $31.86 to
+    # produce - the prior $26 default (copied from the deprecated
+    # procedural niche) was actually a loss on every sale. This price
+    # gives a ~20-25% margin after Etsy's ~9.5% fees, in line with
+    # comparable custom 40oz tumblers on Etsy (commonly $35+).
+    price_pod: 47.99
     prompts:
       - label: Cat in Pumpkin
         query: >-
@@ -974,7 +979,10 @@ niches:
       - name: Undated Fall Planner
         kwargs: {undated: true}
     digital_sizes: [letter_8.5x11, a4]
-    price_digital: 3.50
+    # $4.50: printable calendars/planners on Etsy cluster $3-8 (plain
+    # ones nearer $1.50-3, "premium"/illustrated ones higher); these
+    # have a bold illustrated background, not a bare grid.
+    price_digital: 4.50
     seo:
       title_template: >-
         {variant_title} Printable Calendar | Fall Halloween Monthly
