@@ -30,10 +30,19 @@ class EtsyError(RuntimeError):
 
 
 class EtsyClient:
-    def __init__(self, keystring: str | None = None, token_path: Path = TOKEN_PATH, timeout: int = 60):
+    def __init__(
+        self,
+        keystring: str | None = None,
+        shared_secret: str | None = None,
+        token_path: Path = TOKEN_PATH,
+        timeout: int = 60,
+    ):
         self.keystring = keystring or os.environ.get("ETSY_KEYSTRING")
         if not self.keystring:
             raise EtsyError("Set ETSY_KEYSTRING in .env (from your Etsy developer app).")
+        self.shared_secret = shared_secret or os.environ.get("ETSY_SHARED_SECRET")
+        if not self.shared_secret:
+            raise EtsyError("Set ETSY_SHARED_SECRET in .env (the 'Shared secret' on your Etsy app's page).")
         self.token_path = token_path
         self.timeout = timeout
         self._token = self._load_token()
@@ -73,7 +82,10 @@ class EtsyClient:
 
     def _headers(self) -> dict:
         self._refresh_if_needed()
-        return {"Authorization": f"Bearer {self._token['access_token']}", "x-api-key": self.keystring}
+        return {
+            "Authorization": f"Bearer {self._token['access_token']}",
+            "x-api-key": f"{self.keystring}:{self.shared_secret}",
+        }
 
     def _request(self, method: str, path: str, files=None, **kwargs) -> Any:
         url = f"{API_BASE}{path}"
