@@ -261,7 +261,9 @@ def mockup_desk_flatlay(design: Image.Image, surface: str = "wood") -> Image.Ima
         x = w * i / 6
         draw.line([(x, 0), (x, h)], fill=plank_color, width=max(1, int(w * 0.002)))
 
-    page_box = [w * 0.22, h * 0.06, w * 0.78, h * 0.86]
+    # Sized to letter/a4 paper's own ~0.77 aspect ratio so a real
+    # calendar/planner page fills it edge to edge with no letterboxing.
+    page_box = [w * 0.13, h * 0.06, w * 0.87, h * 0.86]
     shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     ImageDraw.Draw(shadow).rectangle(
         [page_box[0] + w * 0.012, page_box[1] + h * 0.01, page_box[2] + w * 0.012, page_box[3] + h * 0.01],
