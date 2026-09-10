@@ -246,7 +246,28 @@ def _monthly_calendar(
         r, c = empty_cells[(i * 7) % len(empty_cells)]
         cx = margin + (c + 0.82) * col_w
         cy = body_top + (r + 0.78) * row_h
-        draw_icon(canvas.draw, motif, cx, cy, icon_r, palette["accent"][i % len(palette["accent"])])
+        # Always the first accent color, not cycled through all of them -
+        # some palettes' later accent entries are near-white/cream and
+        # nearly invisible against this template's light page background.
+        draw_icon(canvas.draw, motif, cx, cy, icon_r, palette["accent"][0])
+
+
+def render_calendar_grid_rgba(
+    size: tuple[int, int],
+    header_text: str,
+    palette_name: str,
+    month: int | None = None,
+    year: int | None = None,
+    undated: bool = False,
+) -> "Canvas":
+    """monthly_calendar rendered on a transparent canvas at `size`, for
+    compositing into a safe-zone box of an externally illustrated
+    background (see pipeline/canva_import.py's calendar-background
+    workflow) instead of onto _monthly_calendar's own plain white page."""
+    palette = get_palette(palette_name)
+    canvas = Canvas.transparent(size)
+    _monthly_calendar(canvas, palette, header_text, month=month, year=year, undated=undated)
+    return canvas
 
 
 _TEMPLATE_FN = {

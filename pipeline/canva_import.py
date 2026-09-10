@@ -217,6 +217,113 @@ def import_design(
     return metadata
 
 
+CALENDAR_SAFE_ZONE = (0.15, 0.22, 0.85, 0.85)  # left, top, right, bottom fractions
+
+
+def import_calendar_with_illustrated_background(
+    niche_name: str,
+    variant: str,
+    master_pdf_url: str,
+    canva_design_id: str,
+    *,
+    month: int | None = None,
+    year: int | None = None,
+    undated: bool = False,
+    palette_name: str = "terracotta_boho",
+    canva_edit_url: str | None = None,
+    out_dir: Path | None = None,
+    price_override: float | None = None,
+    safe_zone: tuple[float, float, float, float] = CALENDAR_SAFE_ZONE,
+) -> dict:
+    """Like import_design, but for a calendar: Canva's generate-design
+    can't reliably produce an actual numbered date grid (see
+    design/generators/planner.py's monthly_calendar docstring - tried
+    "document", "poster", and "infographic" design_types, got an
+    invoice, two fake event posters, and an infographic, never a real
+    grid). This instead uses Canva only for a bold illustrated border/
+    background with a blank safe-zone, and composites a precise
+    procedurally-rendered grid (render_calendar_grid_rgba) into that
+    zone - the illustration quality of Canva with the correctness of
+    the procedural grid.
+    """
+    from design.generators.planner import render_calendar_grid_rgba
+
+    niches = load_niches()
+    niche = niches[niche_name]
+    digital_sizes = niche.get("digital_sizes", [])
+    if not digital_sizes:
+        raise ValueError(f"Niche '{niche_name}' has no digital_sizes configured.")
+
+    context = {"variant_title": humanize(variant), "quote": "", "quote_short": "", "motif_title": "", "text": ""}
+    seo = render_seo(niche, context)
+
+    out_dir = out_dir or Path("output") / niche_name
+    design_slug = slugify(f"{niche_name}-{variant}-{uuid.uuid4().hex[:6]}")
+    design_dir = out_dir / design_slug
+
+    master_pdf_path = design_dir / "_master.pdf"
+    _download(master_pdf_url, master_pdf_path)
+    master = _rasterize_master(master_pdf_path)
+    master_pdf_path.unlink()
+
+    files: dict[str, dict[str, str]] = {}
+    preview_path = design_dir / "preview.jpg"
+    preview_size = digital_sizes[0]
+
+    for size_name in digital_sizes:
+        w, h = size_px(size_name)
+        background = _crop_to_ratio(master, w, h).convert("RGBA")
+
+        x0 = int(safe_zone[0] * w)
+        y0 = int(safe_zone[1] * h)
+        x1 = int(safe_zone[2] * w)
+        y1 = int(safe_zone[3] * h)
+        grid_canvas = render_calendar_grid_rgba(
+            (x1 - x0, y1 - y0), context["variant_title"], palette_name, month=month, year=year, undated=undated
+        )
+        background.alpha_composite(grid_canvas.image, (x0, y0))
+        final = background.convert("RGB")
+
+        png_path = design_dir / f"{size_name}.png"
+        final.save(png_path, "PNG")
+        files.setdefault("png", {})[size_name] = str(png_path)
+
+        pdf_path = design_dir / f"{size_name}.pdf"
+        final.save(pdf_path, "PDF", resolution=RASTER_DPI)
+        files.setdefault("pdf", {})[size_name] = str(pdf_path)
+
+        if size_name == preview_size:
+            preview = final.copy()
+            preview.thumbnail((1600, 1600))
+            preview.save(preview_path, "JPEG", quality=87)
+
+    price_digital = price_override if price_override is not None else niche.get("price_digital")
+
+    metadata = {
+        "design_id": design_slug,
+        "niche": niche_name,
+        "product_mode": niche.get("product_mode", "digital"),
+        "source": "canva+procedural",
+        "canva_design_id": canva_design_id,
+        "canva_edit_url": canva_edit_url,
+        "variant": variant,
+        "generator_type": "canva_calendar",
+        "title": seo["title"],
+        "description": seo["description"],
+        "tags": seo["tags"],
+        "price_digital": price_digital,
+        "price_pod": None,
+        "pod_sizes": [],
+        "digital_sizes": digital_sizes,
+        "preview": str(preview_path),
+        "files": files,
+    }
+    with open(design_dir / "metadata.json", "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+
+    return metadata
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Package a Canva-generated design into the standard batch format.")
     parser.add_argument("--niche", required=True, help="Niche name from config/niches.yaml (must be type: canva)")

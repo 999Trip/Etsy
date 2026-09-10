@@ -35,6 +35,7 @@ MOCKUP_FN = {
     "mug": mockup.mockup_mug,
     "tumbler": mockup.mockup_tumbler,
     "framed": mockup.mockup_framed_wall,
+    "flatlay": mockup.mockup_desk_flatlay,
 }
 
 
@@ -63,7 +64,7 @@ def main() -> None:
 
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    source_by_product = {"mug": mug_png, "tumbler": tumbler_png, "framed": framed_png}
+    source_by_product = {"mug": mug_png, "tumbler": tumbler_png, "framed": framed_png, "flatlay": framed_png}
     for product in args.products:
         source = source_by_product.get(product, apparel_png)
         if not source:

@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from PIL import Image, ImageDraw
 
+from design.motifs import draw_icon
+
 CANVAS_SIZE = (1000, 1200)
 _SS = 2  # supersampling factor for smooth garment edges
 
@@ -245,6 +247,55 @@ def mockup_mug(design: Image.Image, garment: str = "white", cover: bool = False)
 
 
 FRAME_COLORS = {"black": "#1E1E1E", "white": "#F5F3EE", "wood": "#8A6A4B"}
+DESK_COLORS = {"wood": "#B08A5F", "light_wood": "#D9C3A0", "charcoal": "#3A3A3A"}
+
+
+def mockup_desk_flatlay(design: Image.Image, surface: str = "wood") -> Image.Image:
+    """A top-down flat lay of a printable page on a desk, with a mug and
+    pen for scale/context - the standard second-photo style for planners,
+    trackers, and calendars (design/generators/planner.py output), which
+    aren't wall-hangable like poster designs (see mockup_framed_wall)."""
+    canvas, draw, w, h = _new_ss_canvas(DESK_COLORS.get(surface, surface))
+    plank_color = _shade(DESK_COLORS.get(surface, surface), 0.08)
+    for i in range(1, 6):
+        x = w * i / 6
+        draw.line([(x, 0), (x, h)], fill=plank_color, width=max(1, int(w * 0.002)))
+
+    page_box = [w * 0.22, h * 0.06, w * 0.78, h * 0.86]
+    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rectangle(
+        [page_box[0] + w * 0.012, page_box[1] + h * 0.01, page_box[2] + w * 0.012, page_box[3] + h * 0.01],
+        fill=(0, 0, 0, 70),
+    )
+    canvas.alpha_composite(shadow)
+    draw.rectangle(page_box, fill="#FFFFFF")
+
+    canvas = _finish(canvas)
+    scale = 1 / _SS
+    fpage_box = tuple(int(c * scale) for c in page_box)
+    _paste_design(canvas, design, fpage_box)
+
+    fdraw = ImageDraw.Draw(canvas)
+    cw, ch = CANVAS_SIZE
+    mug_cx, mug_cy, mug_r = cw * 0.88, ch * 0.18, cw * 0.07
+    fdraw.ellipse(
+        [mug_cx - mug_r, mug_cy - mug_r, mug_cx + mug_r, mug_cy + mug_r], fill="#6B4A36", outline="#4A3226", width=2
+    )
+    fdraw.ellipse(
+        [mug_cx - mug_r * 0.55, mug_cy - mug_r * 0.55, mug_cx + mug_r * 0.55, mug_cy + mug_r * 0.55], fill="#3D2A20"
+    )
+
+    pen_x0, pen_y0 = cw * 0.86, ch * 0.72
+    pen_x1, pen_y1 = cw * 0.94, ch * 0.88
+    fdraw.line([(pen_x0, pen_y0), (pen_x1, pen_y1)], fill="#2A2A2A", width=int(cw * 0.014))
+    fdraw.ellipse(
+        [pen_x1 - cw * 0.008, pen_y1 - cw * 0.008, pen_x1 + cw * 0.008, pen_y1 + cw * 0.008], fill="#C9A227"
+    )
+
+    leaf_cx, leaf_cy = cw * 0.1, ch * 0.85
+    draw_icon(fdraw, "leaf", leaf_cx, leaf_cy, cw * 0.045, "#B5502D")
+
+    return canvas.convert("RGB")
 
 
 def mockup_framed_wall(design: Image.Image, frame: str = "black", wall_color: str = "#EDEAE3") -> Image.Image:
