@@ -15,17 +15,21 @@ backgrounds) are a named 2026 trend in their own right.
 """
 from __future__ import annotations
 
+import calendar as _calendar
+
 from PIL import ImageFont
 
 from design.engine import Canvas, draw_centered_multiline, fit_text_block, size_px
 from design.fonts import resolve_font
+from design.motifs import draw_icon
 from design.palettes import get_palette
 
-TEMPLATES = ("weekly_planner", "budget_tracker", "habit_tracker", "checklist")
+TEMPLATES = ("weekly_planner", "budget_tracker", "habit_tracker", "checklist", "monthly_calendar")
 
 PAGE_BG = "#FFFFFF"
 
 DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+CALENDAR_DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 BUDGET_CATEGORIES = [
     "Housing",
     "Utilities",
@@ -179,11 +183,78 @@ def _checklist(canvas: Canvas, palette: dict, header_text: str) -> None:
             )
 
 
+def _monthly_calendar(
+    canvas: Canvas,
+    palette: dict,
+    header_text: str,
+    month: int | None = None,
+    year: int | None = None,
+    undated: bool = False,
+    accent_motifs: tuple[str, ...] = ("pumpkin", "bat", "ghost", "leaf"),
+) -> None:
+    margin = int(canvas.w * 0.07)
+    top = _header(canvas, palette, header_text, margin)
+    line_color = palette["accent"][-1]
+    label_font = ImageFont.truetype(resolve_font("sans_bold"), int(canvas.w * 0.026))
+    date_font = ImageFont.truetype(resolve_font("sans_bold"), int(canvas.w * 0.026))
+
+    n_cols, n_rows = 7, 6
+    grid_top = top + int(canvas.h * 0.02)
+    grid_bottom = canvas.h - margin
+    col_w = (canvas.w - 2 * margin) / n_cols
+    header_row_h = label_font.size * 1.8
+    body_top = grid_top + header_row_h
+    row_h = (grid_bottom - body_top) / n_rows
+
+    for i, day in enumerate(CALENDAR_DAYS):
+        x = margin + i * col_w
+        canvas.draw.text(
+            (x + col_w / 2, grid_top + header_row_h / 2), day, font=label_font, fill=palette["ink"], anchor="mm"
+        )
+
+    for r in range(n_rows + 1):
+        y = body_top + r * row_h
+        canvas.draw.line([(margin, y), (canvas.w - margin, y)], fill=line_color, width=1)
+    for c in range(n_cols + 1):
+        x = margin + c * col_w
+        canvas.draw.line([(x, grid_top), (x, grid_bottom)], fill=line_color, width=1)
+    canvas.draw.line([(margin, grid_top), (canvas.w - margin, grid_top)], fill=palette["ink"], width=2)
+    canvas.draw.line([(margin, body_top), (canvas.w - margin, body_top)], fill=palette["ink"], width=2)
+
+    used_cells: set[tuple[int, int]] = set()
+    if not undated:
+        if month is None or year is None:
+            raise ValueError("monthly_calendar requires month and year unless undated=True")
+        first_weekday, days_in_month = _calendar.monthrange(year, month)  # Mon=0 .. Sun=6
+        start_col = (first_weekday + 1) % 7  # convert to Sun=0 .. Sat=6
+        day_num = 1
+        for r in range(n_rows):
+            for c in range(n_cols):
+                if (r == 0 and c < start_col) or day_num > days_in_month:
+                    continue
+                x = margin + c * col_w + col_w * 0.08
+                y = body_top + r * row_h + row_h * 0.06
+                canvas.draw.text((x, y), str(day_num), font=date_font, fill=palette["ink"])
+                used_cells.add((r, c))
+                day_num += 1
+
+    icon_r = min(col_w, row_h) * 0.16
+    empty_cells = [(r, c) for r in range(n_rows) for c in range(n_cols) if (r, c) not in used_cells]
+    for i, motif in enumerate(accent_motifs):
+        if i >= len(empty_cells):
+            break
+        r, c = empty_cells[(i * 7) % len(empty_cells)]
+        cx = margin + (c + 0.82) * col_w
+        cy = body_top + (r + 0.78) * row_h
+        draw_icon(canvas.draw, motif, cx, cy, icon_r, palette["accent"][i % len(palette["accent"])])
+
+
 _TEMPLATE_FN = {
     "weekly_planner": _weekly_planner,
     "budget_tracker": _budget_tracker,
     "habit_tracker": _habit_tracker,
     "checklist": _checklist,
+    "monthly_calendar": _monthly_calendar,
 }
 
 
@@ -194,6 +265,7 @@ def generate(
     palette_name: str = "sage_minimal",
     size_name: str = "letter_8.5x11",
     seed: int | None = None,
+    **template_kwargs,
 ) -> Canvas:
     if template not in _TEMPLATE_FN:
         raise ValueError(f"Unknown template '{template}'. Available: {', '.join(_TEMPLATE_FN)}")
@@ -202,5 +274,5 @@ def generate(
     size = size_px(size_name)
     canvas = Canvas(size, PAGE_BG)
 
-    _TEMPLATE_FN[template](canvas, palette, header)
+    _TEMPLATE_FN[template](canvas, palette, header, **template_kwargs)
     return canvas

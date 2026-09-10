@@ -955,44 +955,32 @@ niches:
         - witchy tumbler
         - pumpkin tumbler
 
-  fall_halloween_calendar_printable_canva:
-    type: canva
+  fall_halloween_calendar_printable:
+    type: planner
     product_mode: digital
-    canva_design_type: document
+    # Canva's AI reliably produced decorative posters/invitations/articles
+    # for this (tried "document" and "poster" design_types, got an
+    # invoice, a fake press release, and a fake event poster - never an
+    # actual date grid), so this one is procedural like the other planner
+    # niches - exact grids are what design/generators/planner.py is for.
+    planner_template: monthly_calendar
+    header_template: "{variant_title}"
+    palettes: [terracotta_boho, midnight_gold, pumpkin_orange, sage_minimal]
+    variants:
+      - name: October 2026
+        kwargs: {month: 10, year: 2026}
+      - name: November 2026
+        kwargs: {month: 11, year: 2026}
+      - name: Undated Fall Planner
+        kwargs: {undated: true}
     digital_sizes: [letter_8.5x11, a4]
     price_digital: 3.50
-    prompts:
-      - label: October 2026 Halloween
-        query: >-
-          A printable monthly calendar page for October 2026, Halloween
-          theme, "October 2026" as the month title at the top, a full
-          7-column by 6-row grid with day-of-week headers (Sun-Sat) and
-          numbered date boxes 1-31, illustrated pumpkins bats and ghosts
-          as decorative border accents, clean modern minimalist layout,
-          plenty of white space inside each date box for handwritten notes
-      - label: November 2026 Fall
-        query: >-
-          A printable monthly calendar page for November 2026, cozy autumn
-          theme, "November 2026" as the month title at the top, a full
-          7-column by 6-row grid with day-of-week headers (Sun-Sat) and
-          numbered date boxes 1-30, illustrated fall leaves pumpkins and
-          acorns as decorative border accents, clean modern minimalist
-          layout, plenty of white space inside each date box for
-          handwritten notes
-      - label: Undated Fall Planner
-        query: >-
-          An undated printable monthly calendar page, cozy autumn theme, a
-          blank "Month" title placeholder at the top, a full 7-column by
-          6-row grid with day-of-week headers only (Sun-Sat, no dates
-          filled in), illustrated fall leaves and pumpkins as decorative
-          border accents, clean modern minimalist layout, plenty of white
-          space inside each box for handwritten notes
     seo:
       title_template: >-
         {variant_title} Printable Calendar | Fall Halloween Monthly
         Planner Page | Instant Download
       description_template: |
-        A {variant_title} printable calendar page - a cozy, illustrated
+        A {variant_title} printable calendar page - a clean, illustrated
         way to plan out your month.
 
         WHAT YOU GET

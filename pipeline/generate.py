@@ -127,11 +127,19 @@ def generate_batch(niche_name: str, count: int, out_dir: Path, seed: int | None 
             context = {**base_context, "motif_title": humanize(motif), "text": text}
             design_slug = slugify(f"{niche_name}-{motif}-{text}-{palette_name}-{i}")
         elif niche["type"] == "planner":
-            variant = extra
-            context = {**base_context, "variant_title": humanize(variant)}
+            # A variant is normally just a name (humanized into the
+            # header), but a niche can instead give {name, kwargs} to pass
+            # extra generator-specific arguments per variant - e.g. the
+            # monthly_calendar template's month/year/undated, which differ
+            # per variant rather than just the display title.
+            if isinstance(extra, dict):
+                variant_name, variant_kwargs = extra["name"], extra.get("kwargs", {})
+            else:
+                variant_name, variant_kwargs = extra, {}
+            context = {**base_context, "variant_title": humanize(variant_name)}
             header = niche["header_template"].format(**context)
-            gen_kwargs = {"template": niche["planner_template"], "header": header}
-            design_slug = slugify(f"{niche_name}-{variant}-{palette_name}-{i}")
+            gen_kwargs = {"template": niche["planner_template"], "header": header, **variant_kwargs}
+            design_slug = slugify(f"{niche_name}-{variant_name}-{palette_name}-{i}")
         else:
             motif = extra
             gen_kwargs = {"motif": motif}

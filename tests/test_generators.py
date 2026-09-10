@@ -52,10 +52,21 @@ class GeneratorSmokeTests(unittest.TestCase):
         self.assertEqual(canvas.image.mode, "RGBA")
 
     def test_planner_all_templates_fit_header_within_page(self):
+        extra_kwargs = {"monthly_calendar": {"month": 10, "year": 2026}}
         for template in planner.TEMPLATES:
-            canvas = planner.generate(template=template, header="A Reasonably Long Header Title Here", size_name="letter_8.5x11")
+            canvas = planner.generate(
+                template=template,
+                header="A Reasonably Long Header Title Here",
+                size_name="letter_8.5x11",
+                **extra_kwargs.get(template, {}),
+            )
             self.assertEqual(canvas.image.mode, "RGB")
             self.assertGreater(canvas.w, 0)
+
+    def test_monthly_calendar_undated(self):
+        canvas = planner.generate(template="monthly_calendar", header="Undated Fall Planner", size_name="letter_8.5x11", undated=True)
+        self.assertEqual(canvas.image.mode, "RGB")
+        self.assertGreater(canvas.w, 0)
 
     def test_mockups_render_for_every_product_type(self):
         design = apparel_graphic.generate(motif="ghost", text="Boo", size_name="apparel_12x16", seed=1)
