@@ -157,6 +157,23 @@ class PrintifyClient:
     def get_product(self, shop_id: str, product_id: str) -> dict:
         return self._request("GET", f"/shops/{shop_id}/products/{product_id}.json")
 
+    def update_product_image_scale(self, shop_id: str, product_id: str, scale: float) -> dict:
+        """Rescale the placed image(s) on an existing product's print
+        area(s) - e.g. to fix a design that doesn't fully cover the
+        print placeholder (Printify's `scale` is the image's width as a
+        fraction of the placeholder's width; the image's *height* only
+        matches the placeholder if their aspect ratios happen to match,
+        otherwise scale=1.0 can leave a visible unprinted gap - see
+        https://developers.printify.com/ "Full bleed / all-over print").
+        """
+        product = self.get_product(shop_id, product_id)
+        print_areas = product["print_areas"]
+        for area in print_areas:
+            for placeholder in area["placeholders"]:
+                for image in placeholder["images"]:
+                    image["scale"] = scale
+        return self._request("PUT", f"/shops/{shop_id}/products/{product_id}.json", json={"print_areas": print_areas})
+
     def update_product_price(self, shop_id: str, product_id: str, price_cents: int) -> dict:
         """Update every variant's price on an existing product (e.g. to
         correct a mispriced draft/live product)."""
