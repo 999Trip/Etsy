@@ -244,6 +244,59 @@ def mockup_mug(design: Image.Image, garment: str = "white", cover: bool = False)
     return canvas.convert("RGB")
 
 
+FRAME_COLORS = {"black": "#1E1E1E", "white": "#F5F3EE", "wood": "#8A6A4B"}
+
+
+def mockup_framed_wall(design: Image.Image, frame: str = "black", wall_color: str = "#EDEAE3") -> Image.Image:
+    """A portrait design in a simple matted frame hung on a wall - the
+    standard second listing photo for printable wall art (quote_poster,
+    line_art), giving buyers a sense of scale and how it looks displayed.
+    `design` is fit-within (not cropped), matching how a buyer would
+    actually print and frame the file."""
+    canvas, draw, w, h = _new_ss_canvas(wall_color)
+    floor_y = h * 0.88
+    draw.rectangle([0, floor_y, w, h], fill=_shade(wall_color, 0.06))
+
+    fcolor = FRAME_COLORS.get(frame, frame)
+    frame_box = [w * 0.28, h * 0.08, w * 0.72, h * 0.72]
+
+    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(shadow).rectangle(
+        [frame_box[0] + w * 0.01, frame_box[1] + h * 0.012, frame_box[2] + w * 0.01, frame_box[3] + h * 0.012],
+        fill=(0, 0, 0, 60),
+    )
+    canvas.alpha_composite(shadow)
+
+    draw.rectangle(frame_box, fill=fcolor)
+    mat_inset = w * 0.018
+    mat_box = [frame_box[0] + mat_inset, frame_box[1] + mat_inset, frame_box[2] - mat_inset, frame_box[3] - mat_inset]
+    draw.rectangle(mat_box, fill="#FBFAF7")
+
+    inner_pad = w * 0.012
+    art_box = (mat_box[0] + inner_pad, mat_box[1] + inner_pad, mat_box[2] - inner_pad, mat_box[3] - inner_pad)
+
+    pot_cx, pot_bottom = w * 0.85, h * 0.97
+    pot_top = pot_bottom - h * 0.09
+    draw.polygon(
+        [(pot_cx - w * 0.045, pot_bottom), (pot_cx + w * 0.045, pot_bottom), (pot_cx + w * 0.032, pot_top), (pot_cx - w * 0.032, pot_top)],
+        fill=_shade(wall_color, 0.35),
+    )
+    stem_top = pot_top - h * 0.16
+    draw.line([(pot_cx, pot_top), (pot_cx, stem_top)], fill="#6B7A5A", width=int(w * 0.006))
+    leaf_cy = stem_top - h * 0.02
+    for dx, dy, r in [(-0.025, -0.01, 0.045), (0.02, -0.03, 0.04), (0.0, 0.01, 0.038), (0.035, 0.015, 0.035)]:
+        draw.ellipse(
+            [pot_cx + w * dx - w * r, leaf_cy + h * dy - h * r, pot_cx + w * dx + w * r, leaf_cy + h * dy + h * r],
+            fill="#8FA37A",
+        )
+
+    canvas = _finish(canvas)
+    scale = 1 / _SS
+    fart_box = tuple(int(c * scale) for c in art_box)
+    _paste_design(canvas, design, fart_box)
+    return canvas.convert("RGB")
+
+
 def mockup_tumbler(design: Image.Image, garment: str = "white") -> Image.Image:
     """A tall handled tumbler with the design wrapped edge to edge across
     the visible body - for the all-over scatter-pattern designs in

@@ -34,6 +34,7 @@ MOCKUP_FN = {
     "sweatshirt": mockup.mockup_sweatshirt,
     "mug": mockup.mockup_mug,
     "tumbler": mockup.mockup_tumbler,
+    "framed": mockup.mockup_framed_wall,
 }
 
 
@@ -54,14 +55,15 @@ def main() -> None:
         apparel_png = next((p for s, p in png_files.items() if "apparel" in s), None)
         mug_png = next((p for s, p in png_files.items() if "mug" in s), None)
         tumbler_png = next((p for s, p in png_files.items() if "tumbler" in s), None)
+        framed_png = next((p for s, p in png_files.items() if "poster" in s), None) or next(iter(png_files.values()), None)
         out_dir = Path(args.out) if args.out else design_path
     else:
-        apparel_png = mug_png = tumbler_png = str(design_path)
+        apparel_png = mug_png = tumbler_png = framed_png = str(design_path)
         out_dir = Path(args.out) if args.out else design_path.parent
 
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    source_by_product = {"mug": mug_png, "tumbler": tumbler_png}
+    source_by_product = {"mug": mug_png, "tumbler": tumbler_png, "framed": framed_png}
     for product in args.products:
         source = source_by_product.get(product, apparel_png)
         if not source:
