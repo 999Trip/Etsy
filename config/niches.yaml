@@ -976,7 +976,7 @@ niches:
         kwargs: {month: 10, year: 2026}
       - name: November 2026
         kwargs: {month: 11, year: 2026}
-      - name: Undated Fall Planner
+      - name: Year Round Fall
         kwargs: {undated: true}
     digital_sizes: [letter_8.5x11, a4]
     # $4.50: printable calendars/planners on Etsy cluster $3-8 (plain
