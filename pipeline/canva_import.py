@@ -220,6 +220,117 @@ def import_design(
 CALENDAR_SAFE_ZONE = (0.15, 0.22, 0.85, 0.85)  # left, top, right, bottom fractions
 
 
+def import_full_year_calendar(
+    niche_name: str,
+    variant: str,
+    master_pdf_url: str,
+    canva_design_id: str,
+    *,
+    year: int,
+    months: range | list[int] = range(1, 13),
+    preview_month: int | None = None,
+    palette_name: str = "terracotta_boho",
+    canva_edit_url: str | None = None,
+    out_dir: Path | None = None,
+    price_override: float | None = None,
+    safe_zone: tuple[float, float, float, float] = CALENDAR_SAFE_ZONE,
+) -> dict:
+    """Like import_calendar_with_illustrated_background, but for a full
+    12-month (or custom month range) calendar delivered as one
+    multi-page PDF per digital size - a "calendar" listing should cover
+    the whole year, not a single month (a single-month-per-listing
+    calendar was the wrong product shape here). Reuses one Canva
+    illustrated background/border across every month's page rather than
+    generating 12 separate illustrations."""
+    import calendar as _cal
+
+    from design.generators.planner import render_calendar_grid_rgba
+
+    niches = load_niches()
+    niche = niches[niche_name]
+    digital_sizes = niche.get("digital_sizes", [])
+    if not digital_sizes:
+        raise ValueError(f"Niche '{niche_name}' has no digital_sizes configured.")
+
+    context = {"variant_title": humanize(variant), "quote": "", "quote_short": "", "motif_title": "", "text": ""}
+    seo = render_seo(niche, context)
+
+    out_dir = out_dir or Path("output") / niche_name
+    design_slug = slugify(f"{niche_name}-{variant}-{uuid.uuid4().hex[:6]}")
+    design_dir = out_dir / design_slug
+
+    master_pdf_path = design_dir / "_master.pdf"
+    _download(master_pdf_url, master_pdf_path)
+    master = _rasterize_master(master_pdf_path)
+    master_pdf_path.unlink()
+
+    months = list(months)
+    preview_month = preview_month if preview_month is not None else months[0]
+
+    files: dict[str, dict[str, str]] = {}
+    preview_path = design_dir / "preview.jpg"
+    preview_size = digital_sizes[0]
+
+    for size_name in digital_sizes:
+        w, h = size_px(size_name)
+        background_template = _crop_to_ratio(master, w, h)
+
+        x0 = int(safe_zone[0] * w)
+        y0 = int(safe_zone[1] * h)
+        x1 = int(safe_zone[2] * w)
+        y1 = int(safe_zone[3] * h)
+
+        pages = []
+        for month in months:
+            bg = background_template.copy().convert("RGBA")
+            header = f"{_cal.month_name[month]} {year}"
+            grid_canvas = render_calendar_grid_rgba((x1 - x0, y1 - y0), header, palette_name, month=month, year=year)
+            bg.alpha_composite(grid_canvas.image, (x0, y0))
+            page = bg.convert("RGB")
+            pages.append(page)
+            if month == preview_month:
+                # One representative month as a PNG too (not just inside
+                # the multi-page PDF) - listing photos and mockups
+                # (pipeline.mockup_preview) expect a PNG file to exist.
+                png_path = design_dir / f"{size_name}.png"
+                page.save(png_path, "PNG")
+                files.setdefault("png", {})[size_name] = str(png_path)
+                if size_name == preview_size:
+                    preview = page.copy()
+                    preview.thumbnail((1600, 1600))
+                    preview.save(preview_path, "JPEG", quality=87)
+
+        pdf_path = design_dir / f"{size_name}.pdf"
+        pages[0].save(pdf_path, "PDF", save_all=True, append_images=pages[1:], resolution=RASTER_DPI)
+        files.setdefault("pdf", {})[size_name] = str(pdf_path)
+
+    price_digital = price_override if price_override is not None else niche.get("price_digital")
+
+    metadata = {
+        "design_id": design_slug,
+        "niche": niche_name,
+        "product_mode": niche.get("product_mode", "digital"),
+        "source": "canva+procedural",
+        "canva_design_id": canva_design_id,
+        "canva_edit_url": canva_edit_url,
+        "variant": variant,
+        "generator_type": "canva_calendar",
+        "title": seo["title"],
+        "description": seo["description"],
+        "tags": seo["tags"],
+        "price_digital": price_digital,
+        "price_pod": None,
+        "pod_sizes": [],
+        "digital_sizes": digital_sizes,
+        "preview": str(preview_path),
+        "files": files,
+    }
+    with open(design_dir / "metadata.json", "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+
+    return metadata
+
+
 def import_calendar_with_illustrated_background(
     niche_name: str,
     variant: str,
