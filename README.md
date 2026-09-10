@@ -298,6 +298,31 @@ normal viewing distance (see the mockups this pipeline produces) but is
 worth re-generating at Canva Pro if you need it to hold up under a tight
 product-photo crop.
 
+**QC every candidate before publishing anything, not just at a glance.**
+A design that reads fine as a small thumbnail can still have real
+defects a full-page or whole-composition view won't show:
+
+- **Zoom into any character/face illustration** (a full-res crop, not
+  just the downsized preview) - AI generation artifacts like mismatched
+  or asymmetric eyes are easy to miss at normal preview size but
+  obvious once you look closely (this shipped once before it was
+  caught - see git history around the calendar background swap).
+- **Confirm it's actually the content type you asked for**, not a
+  plausible-looking substitute - Canva's AI has repeatedly returned a
+  fake event invitation, a press release, or an infographic when asked
+  for a plain graphic or a literal data grid. Check the *content*, not
+  just that something rendered.
+- **For a design going onto a POD print area (mug/tumbler wrap) or into
+  a compositing safe-zone**, render the actual mockup (`pipeline.mockup_preview`,
+  or a real Printify product's own generated photos) before publishing
+  - a crop or composite that looks right in the flat source image can
+  still cut through a focal point once mapped onto the real print
+  shape.
+
+None of this is optional polish - it's the difference between a listing
+you'd actually want a customer to see and one that ships an obvious
+flaw because nobody looked closely before hitting publish.
+
 ## Notes and caveats
 
 - **Procedural generation is free; Canva generation is not.** The
