@@ -178,5 +178,83 @@ def run_oauth_flow(scopes: list[str] | None = None) -> dict:
     return token
 
 
+PENDING_PATH = Path(__file__).resolve().parent.parent / ".etsy_oauth_pending.json"
+
+
+def start_oauth(scopes: list[str] | None = None) -> str:
+    """Manual-handoff variant of run_oauth_flow, for when the browser that
+    approves access (e.g. a phone) isn't on the same machine/network as
+    this process, so it can't reach a locally-served redirect. Generates
+    the PKCE verifier/state and saves them to PENDING_PATH, then returns
+    the authorization URL to open manually. Etsy will redirect the
+    browser to REDIRECT_URI with ?code=...&state=... - that page won't
+    actually load (nothing is listening there), but the code is right
+    there in the browser's address bar to copy out. Pass that URL (or
+    just the code) to finish_oauth() to complete the exchange."""
+    keystring = os.environ.get("ETSY_KEYSTRING")
+    if not keystring:
+        raise RuntimeError("Set ETSY_KEYSTRING in .env before running the OAuth flow.")
+
+    scopes = scopes or DEFAULT_SCOPES
+    state = secrets.token_urlsafe(16)
+    code_verifier = _b64url(secrets.token_bytes(40))
+    code_challenge = _b64url(hashlib.sha256(code_verifier.encode("ascii")).digest())
+
+    query = urllib.parse.urlencode(
+        {
+            "response_type": "code",
+            "client_id": keystring,
+            "redirect_uri": REDIRECT_URI,
+            "scope": " ".join(scopes),
+            "state": state,
+            "code_challenge": code_challenge,
+            "code_challenge_method": "S256",
+        }
+    )
+    auth_url = f"{AUTH_URL}?{query}"
+    PENDING_PATH.write_text(json.dumps({"state": state, "code_verifier": code_verifier}, indent=2))
+    return auth_url
+
+
+def finish_oauth(redirect_url_or_code: str) -> dict:
+    """Complete start_oauth() given either the full (unreachable) redirect
+    URL the browser landed on, or just the raw `code` value copied from
+    it."""
+    if not PENDING_PATH.exists():
+        raise RuntimeError("No pending OAuth request - call start_oauth() first.")
+    pending = json.loads(PENDING_PATH.read_text())
+
+    if redirect_url_or_code.startswith("http"):
+        parsed = urllib.parse.urlparse(redirect_url_or_code)
+        params = urllib.parse.parse_qs(parsed.query)
+        code = params.get("code", [None])[0]
+        state = params.get("state", [None])[0]
+        if not code:
+            raise RuntimeError("No 'code' parameter found in that URL.")
+        if state != pending["state"]:
+            raise RuntimeError("OAuth state mismatch - possible CSRF, aborting.")
+    else:
+        code = redirect_url_or_code.strip()
+
+    keystring = os.environ.get("ETSY_KEYSTRING")
+    resp = requests.post(
+        TOKEN_URL,
+        json={
+            "grant_type": "authorization_code",
+            "client_id": keystring,
+            "redirect_uri": REDIRECT_URI,
+            "code": code,
+            "code_verifier": pending["code_verifier"],
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    token = resp.json()
+    token["obtained_at"] = time.time()
+    TOKEN_PATH.write_text(json.dumps(token, indent=2))
+    PENDING_PATH.unlink(missing_ok=True)
+    return token
+
+
 if __name__ == "__main__":
     run_oauth_flow()
