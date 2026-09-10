@@ -78,7 +78,12 @@ def publish_batch(
         # doesn't map to a standard PDF paper size - see canva_import.py).
         deliverable_files = metadata.get("files", {}).get("pdf") or metadata.get("files", {}).get("png", {})
         for rank, (size_name, file_path) in enumerate(deliverable_files.items(), start=1):
-            client.upload_listing_file(shop_id, listing_id, file_path, name=f"{metadata['design_id']}_{size_name}", rank=rank)
+            # Etsy caps file names at 70 chars - a long design_id plus a
+            # size suffix (e.g. "...sage-minimal_letter_8.5x11") can blow
+            # past that, so truncate the design_id half first.
+            suffix = f"_{size_name}"
+            name = f"{metadata['design_id'][: 70 - len(suffix)]}{suffix}"
+            client.upload_listing_file(shop_id, listing_id, file_path, name=name, rank=rank)
 
         if activate:
             client.activate_listing(shop_id, listing_id)

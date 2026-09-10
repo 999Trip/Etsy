@@ -106,7 +106,7 @@ class PrintifyClient:
         scale: float = 1.0,
         x: float = 0.5,
         y: float = 0.5,
-        angle: float = 0.0,
+        angle: int = 0,
     ) -> dict:
         body = {
             "title": title,

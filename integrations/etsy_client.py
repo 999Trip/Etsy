@@ -178,3 +178,6 @@ class EtsyClient:
         """Move a listing from draft to active (publicly visible on Etsy).
         Etsy requires at least one image before a listing can go active."""
         return self.update_listing(shop_id, listing_id, state="active")
+
+    def delete_listing(self, listing_id: int) -> None:
+        self._request("DELETE", f"/listings/{listing_id}")
