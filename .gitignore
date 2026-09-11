@@ -1,0 +1,13 @@
+.env
+.etsy_token.json
+.etsy_oauth_cert.pem
+.etsy_oauth_key.pem
+output/*
+!output/.gitkeep
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.DS_Store
+.etsy_oauth_pending.json

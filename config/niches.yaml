@@ -1,0 +1,1167 @@
+# Starter niche definitions for the design pipeline.
+#
+# Each niche maps to one generator in design/generators/ and gives the
+# pipeline everything it needs to produce a batch of finished, listable
+# products: which palettes/motifs/quotes to combine, which physical sizes
+# to export, and SEO copy templates for the Etsy/Printify listing.
+#
+# product_mode: "digital" (Etsy digital download only), "pod" (Printify
+# print-on-demand only), or "both".
+#
+# Feel free to duplicate a niche block and tweak it to make a new one -
+# nothing here is hardcoded into the pipeline scripts.
+
+niches:
+  boho_line_art_wall_decor:
+    type: line_art
+    product_mode: both
+    palettes: [terracotta_boho, sage_minimal, clay_rust, midnight_gold]
+    motifs: [arch, sun, wave, moon_phases]
+    digital_sizes: [poster_18x24, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 4.50
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        {motif_title} Boho Line Art Printable | Minimalist {palette_title}
+        Wall Decor | Digital Download Poster
+      description_template: |
+        A minimalist {motif_title} line-art print in a {palette_title} colour
+        palette. Perfect for gallery walls, living rooms, nurseries, and
+        boho-modern interiors.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Ready to print at home, at a local print shop, or order framed
+
+        This is a digital file - no physical item will be shipped.
+        For personal use only; not for resale or redistribution of the file.
+      tags:
+        - boho wall art
+        - line art print
+        - minimalist decor
+        - printable art
+        - digital download
+        - boho decor
+        - arch print
+        - home decor
+        - instant download
+        - wall art print
+        - aesthetic prints
+        - modern boho art
+
+  minimalist_quote_posters:
+    type: quote_poster
+    product_mode: both
+    palettes: [sage_minimal, charcoal_mono, blush_neutral]
+    quotes:
+      - text: "Grow through what you go through"
+        author: null
+      - text: "Do it with intention"
+        author: null
+      - text: "Not all who wander are lost"
+        author: null
+      - text: "Slow down and enjoy the little things"
+        author: null
+      - text: "Bloom where you are planted"
+        author: null
+      - text: "Choose joy, every single day"
+        author: null
+      - text: "This is your sign to begin"
+        author: null
+      - text: "Simplicity is the ultimate sophistication"
+        author: null
+    digital_sizes: [poster_18x24, letter_8.5x11, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 3.50
+    price_pod: 22.00
+    seo:
+      title_template: >-
+        "{quote_short}" Quote Poster | Minimalist Typography Print |
+        Printable Wall Art
+      description_template: |
+        A clean, minimalist typography poster reading "{quote}" - printed
+        on a soft {palette_title} background. Looks great alone or mixed
+        into a gallery wall.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Multiple sizes included, see photos for details
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - quote poster
+        - typography print
+        - minimalist wall art
+        - printable quote
+        - motivational print
+        - digital download
+        - inspirational art
+        - farmhouse decor
+        - instant download
+        - aesthetic room decor
+        - dorm decor
+        - office wall art
+
+  boho_digital_paper_pack:
+    type: pattern
+    product_mode: digital
+    palettes: [blush_neutral, terracotta_boho, clay_rust]
+    motifs: [dots, stripes, checker, scallop, arches]
+    digital_sizes: [square_12x12]
+    price_digital: 5.00
+    seo:
+      title_template: >-
+        {motif_title} Digital Paper Pack | {palette_title} Seamless Pattern
+        | Scrapbook & Junk Journal Printable
+      description_template: |
+        A {motif_title} seamless pattern in a {palette_title} colour
+        palette - great for scrapbooking, junk journals, planner covers,
+        card making, and printable backgrounds.
+
+        WHAT YOU GET
+        - High-resolution 12x12in PNG and PDF files (300 DPI)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - digital paper
+        - seamless pattern
+        - journal printable
+        - scrapbook paper
+        - planner cover
+        - digital download
+        - card making
+        - printable background
+        - instant download
+        - craft supplies
+        - pattern design
+        - boho pattern
+
+  # --- Fall / Halloween (trending seasonal niches) ---------------------
+
+  halloween_line_art_wall_decor:
+    type: line_art
+    product_mode: both
+    palettes: [terracotta_boho, clay_rust, midnight_gold]
+    motifs: [pumpkin, ghost, bat, moon_stars, witch_hat, black_cat]
+    digital_sizes: [poster_18x24, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 4.50
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        {motif_title} Halloween Line Art Printable | Minimalist
+        {palette_title} Wall Decor | Digital Download Poster
+      description_template: |
+        A minimalist {motif_title} line-art print in a {palette_title}
+        colour palette - a subtler, more grown-up take on Halloween decor
+        for gallery walls, entryways, and mantels.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Ready to print at home, at a local print shop, or order framed
+
+        This is a digital file - no physical item will be shipped.
+        For personal use only; not for resale or redistribution of the file.
+      tags:
+        - halloween decor
+        - spooky wall art
+        - line art print
+        - minimalist decor
+        - printable art
+        - digital download
+        - fall decor
+        - halloween print
+        - instant download
+        - wall art print
+        - autumn decor
+        - halloween art
+
+  halloween_quote_posters:
+    type: quote_poster
+    product_mode: both
+    palettes: [terracotta_boho, charcoal_mono, midnight_gold]
+    quotes:
+      - text: "Basic Witch"
+        author: null
+      - text: "Spooky Season"
+        author: null
+      - text: "Trick or Treat"
+        author: null
+      - text: "Little Pumpkin"
+        author: null
+      - text: "Boo Y'all"
+        author: null
+      - text: "Happy Haunting"
+        author: null
+      - text: "Witchy Vibes Only"
+        author: null
+      - text: "But First, Coffee"
+        author: null
+    digital_sizes: [poster_18x24, letter_8.5x11, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 3.50
+    price_pod: 22.00
+    seo:
+      title_template: >-
+        "{quote_short}" Halloween Quote Poster | Minimalist Typography
+        Print | Printable Wall Art
+      description_template: |
+        A clean, minimalist typography poster reading "{quote}" - printed
+        on a soft {palette_title} background. A playful but grown-up way
+        to bring Halloween into your decor.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Multiple sizes included, see photos for details
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - halloween quote
+        - spooky poster
+        - typography print
+        - witch decor
+        - digital download
+        - halloween decor
+        - instant download
+        - fall wall art
+        - october decor
+        - aesthetic decor
+        - printable quote
+        - dorm decor
+
+  fall_line_art_wall_decor:
+    type: line_art
+    product_mode: both
+    palettes: [terracotta_boho, clay_rust, sage_minimal]
+    motifs: [leaf, pumpkin]
+    digital_sizes: [poster_18x24, 5x7]
+    pod_sizes: [poster_18x24]
+    price_digital: 4.50
+    price_pod: 24.00
+    seo:
+      title_template: >-
+        {motif_title} Fall Line Art Printable | Minimalist {palette_title}
+        Autumn Wall Decor | Digital Download Poster
+      description_template: |
+        A minimalist {motif_title} line-art print in a warm
+        {palette_title} colour palette - cozy autumn wall art for living
+        rooms, entryways, and kitchens.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Ready to print at home, at a local print shop, or order framed
+
+        This is a digital file - no physical item will be shipped.
+        For personal use only; not for resale or redistribution of the file.
+      tags:
+        - fall wall art
+        - autumn decor
+        - leaf print
+        - pumpkin decor
+        - minimalist decor
+        - printable art
+        - digital download
+        - farmhouse decor
+        - instant download
+        - wall art print
+        - cozy home decor
+        - october decor
+
+  # --- Planners / trackers (fastest-growing digital category per 2026 --
+  # --- trend research - see design/generators/planner.py) -------------
+
+  weekly_planner_printable:
+    type: planner
+    product_mode: digital
+    planner_template: weekly_planner
+    header_template: "{variant_title} Weekly Planner"
+    palettes: [terracotta_boho, clay_rust, sage_minimal, charcoal_mono]
+    variants: ["Cozy Autumn", "Fall Harvest", "Pumpkin Season", "Autumn Aesthetic", "Cottagecore Fall"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        {variant_title} Weekly Planner Printable | Undated Productivity
+        Planner | Digital Download PDF
+      description_template: |
+        An undated {variant_title} weekly planner - Monday through Sunday
+        columns for tasks, plus a top-priorities section. Print as many
+        as you need, any time of year.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+        - Low-ink, print-friendly design
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - weekly planner
+        - printable planner
+        - undated planner
+        - fall planner
+        - digital download
+        - planner pdf
+        - adhd planner
+        - daily planner
+        - instant download
+        - cozy planner
+        - autumn planner
+        - planner printable
+
+  fall_budget_tracker_printable:
+    type: planner
+    product_mode: digital
+    planner_template: budget_tracker
+    header_template: "{variant_title} Budget Tracker"
+    palettes: [terracotta_boho, clay_rust, sage_minimal]
+    variants: ["Fall Monthly", "Cozy Season", "Autumn Harvest", "Holiday Prep", "Pumpkin Spice Season"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        {variant_title} Budget Tracker Printable | Monthly Finance Planner
+        | Digital Download PDF
+      description_template: |
+        A {variant_title} budget tracker - income, categorized expenses,
+        and a running total so you always know what's left. A simple,
+        low-ink layout that's easy to fill in by hand.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - budget tracker
+        - budget planner
+        - finance printable
+        - money tracker
+        - expense tracker
+        - digital download
+        - budget pdf
+        - savings tracker
+        - monthly budget
+        - instant download
+        - fall budget
+        - printable planner
+
+  habit_tracker_printable:
+    type: planner
+    product_mode: digital
+    planner_template: habit_tracker
+    header_template: "{variant_title} Habit Tracker"
+    palettes: [sage_minimal, terracotta_boho, blush_neutral]
+    variants: ["Fall Wellness", "Autumn Self-Care", "Cozy Habit", "Fall Reset", "Monthly Wellness"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        {variant_title} Habit Tracker Printable | Monthly Habit & Wellness
+        Planner | Digital Download PDF
+      description_template: |
+        A {variant_title} habit tracker - a full month grid to check off
+        up to 10 daily habits at a glance. Great for building routines
+        around wellness, self-care, or any goal.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - habit tracker
+        - wellness planner
+        - self care planner
+        - monthly tracker
+        - digital download
+        - habit tracker pdf
+        - printable tracker
+        - goal tracker
+        - instant download
+        - fall wellness
+        - mental health pdf
+        - wellness tracker
+
+  checklist_printable:
+    type: planner
+    product_mode: digital
+    planner_template: checklist
+    header_template: "{variant_title} Checklist"
+    palettes: [terracotta_boho, charcoal_mono, sage_minimal]
+    variants: ["Fall Bucket List", "Packing", "Holiday Prep", "Fall Cleaning", "Cozy Season To-Do"]
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 3.00
+    seo:
+      title_template: >-
+        {variant_title} Checklist Printable | Printable To-Do List |
+        Digital Download PDF
+      description_template: |
+        A clean {variant_title} checklist - 20 checkbox line items across
+        two columns, ready to fill in by hand. Simple enough for any list.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI, US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - checklist printable
+        - to do list
+        - printable list
+        - digital download
+        - fall checklist
+        - bucket list
+        - packing list
+        - instant download
+        - planner insert
+        - task list pdf
+        - organizer pdf
+        - cozy planner
+
+  # --- Canva-generated (type: canva) -----------------------------------
+  # Generation is interactive-only: Claude calls the Canva MCP tools
+  # (generate-design -> create-design-from-candidate -> export-design)
+  # using the query recipes below, then runs `pipeline.canva_import` with
+  # the resulting export URLs to package the result into this same
+  # output/<niche>/<slug>/metadata.json shape - see pipeline/canva_import.py.
+  # Illustrated/painterly artwork (vintage textures, hand-lettered script,
+  # watercolor florals) that the procedural Pillow generators can't
+  # produce, per 2026 trend research showing vintage/illustrated styles
+  # outperforming flat-vector minimalism this season.
+
+  halloween_vintage_posters_canva:
+    type: canva
+    product_mode: digital
+    canva_design_type: poster
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 5.00
+    prompts:
+      - label: "Happy Haunting Pumpkin"
+        query: >-
+          Vintage retro Halloween poster, 1970s groovy typography, "Happy
+          Haunting" text, warm burnt-orange and deep purple color palette,
+          distressed illustrated pumpkin and moon, nostalgic autumn
+          aesthetic, no photographic people
+      - label: "Basic Witch"
+        query: >-
+          Vintage retro Halloween poster, hand-lettered script text
+          reading "Basic Witch", illustrated witch hat and crescent moon,
+          distressed paper texture, deep purple and mustard color palette,
+          no photographic people
+      - label: "Vintage Black Cat"
+        query: >-
+          Vintage retro Halloween poster, retro illustrated black cat
+          silhouette under a full moon, hand-lettered "Meow-y Halloween"
+          text, distressed texture, burnt orange and charcoal palette, no
+          photographic people
+      - label: "Haunted House"
+        query: >-
+          Vintage retro Halloween poster, illustrated haunted house on a
+          hill under a starry night sky, groovy 1970s typography reading
+          "Trick or Treat", distressed texture, deep purple and orange
+          palette, no photographic people
+    seo:
+      title_template: >-
+        {variant_title} Vintage Halloween Poster | Retro Illustrated Wall
+        Art | Digital Download Printable
+      description_template: |
+        A {variant_title} vintage-style Halloween poster - hand-lettered
+        typography and illustrated retro artwork with a distressed,
+        nostalgic finish. Printable wall art for gallery walls, party
+        decor, or a front-door sign.
+
+        WHAT YOU GET
+        - High-resolution print-ready PDF files (US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - vintage halloween
+        - retro halloween
+        - halloween poster
+        - illustrated art
+        - printable art
+        - digital download
+        - halloween decor
+        - retro poster
+        - spooky season
+        - instant download
+        - wall art print
+        - autumn decor
+
+  halloween_vintage_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    # Same illustrated box-print artwork as halloween_vintage_posters_canva
+    # (reuse the same generated design and import it a second time under
+    # this niche) - printed as a bold rectangular graphic on apparel/mugs
+    # rather than sold as a paper print. No transparency/background
+    # removal needed, which also sidesteps another Canva Pro-gated step.
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Happy Haunting Pumpkin"
+        query: >-
+          Vintage retro Halloween poster, 1970s groovy typography, "Happy
+          Haunting" text, warm burnt-orange and deep purple color palette,
+          distressed illustrated pumpkin and moon, nostalgic autumn
+          aesthetic, no photographic people
+      - label: "Basic Witch"
+        query: >-
+          Vintage retro Halloween poster, hand-lettered script text
+          reading "Basic Witch", illustrated witch hat and crescent moon,
+          distressed paper texture, deep purple and mustard color palette,
+          no photographic people
+      - label: "Vintage Black Cat"
+        query: >-
+          Vintage retro Halloween poster, retro illustrated black cat
+          silhouette under a full moon, hand-lettered "Meow-y Halloween"
+          text, distressed texture, burnt orange and charcoal palette, no
+          photographic people
+      - label: "Haunted House"
+        query: >-
+          Vintage retro Halloween poster, illustrated haunted house on a
+          hill under a starry night sky, groovy 1970s typography reading
+          "Trick or Treat", distressed texture, deep purple and orange
+          palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Vintage Halloween Graphic | Retro Illustrated
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" vintage-style illustrated Halloween graphic,
+        printed as a bold box-print design - available on t-shirts,
+        sweatshirts, hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - vintage halloween
+        - halloween shirt
+        - retro tee
+        - illustrated tee
+        - halloween hoodie
+        - halloween mug
+        - spooky season
+        - retro halloween
+        - halloween gift
+        - graphic tee
+        - box print tee
+        - autumn apparel
+
+  fall_party_invitations_canva:
+    type: canva
+    product_mode: digital
+    canva_design_type: invitation
+    digital_sizes: [5x7]
+    price_digital: 6.00
+    prompts:
+      - label: "Youre Invited Pumpkins"
+        query: >-
+          Fall harvest party invitation, warm cottagecore aesthetic,
+          hand-lettered "You're Invited" script text, pumpkins and autumn
+          leaves illustration, cream and terracotta color palette,
+          elegant editable template with blank space for party details
+      - label: "Halloween Bash Invite"
+        query: >-
+          Halloween party invitation, playful hand-lettered "You're
+          Invited to a Halloween Bash" text, illustrated bats and
+          jack-o-lanterns, deep purple and orange palette, blank space for
+          party details
+      - label: "Friendsgiving Invite"
+        query: >-
+          Friendsgiving dinner party invitation, warm autumn watercolor
+          illustration of pumpkins and wheat, elegant script text reading
+          "You're Invited", cream and rust color palette, blank space for
+          event details
+    seo:
+      title_template: >-
+        {variant_title} Editable Invitation Template | Fall Party
+        Printable Invite | Digital Download
+      description_template: |
+        A {variant_title} invitation template - illustrated fall artwork
+        with hand-lettered typography and open space to add your own
+        party details. Print at home or a local print shop.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (5x7in, 300 DPI), ready to
+          add your text in any photo editor, or request a fully editable
+          Canva link at checkout
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - fall invitation
+        - halloween invite
+        - party invitation
+        - editable template
+        - printable invite
+        - digital download
+        - fall party decor
+        - instant download
+        - autumn invitation
+        - harvest party
+        - invite template
+        - cottagecore invite
+
+  fall_vintage_posters_canva:
+    type: canva
+    product_mode: digital
+    canva_design_type: poster
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 5.00
+    prompts:
+      - label: "Hello Fall Pumpkin Patch"
+        query: >-
+          Vintage retro fall poster, 1970s groovy typography, "Hello Fall"
+          text, illustrated pumpkin patch and falling leaves, warm
+          burnt-orange and mustard color palette, distressed paper
+          texture, no photographic people
+      - label: "Cozy Season Cabin"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Cozy Season", illustrated cabin in the woods surrounded by
+          falling leaves, distressed texture, deep rust and forest green
+          palette, no photographic people
+      - label: "Pumpkin Spice Life"
+        query: >-
+          Vintage retro fall poster, groovy 1970s typography reading
+          "Pumpkin Spice Life", illustrated coffee cup and autumn leaves,
+          warm cream and burnt orange palette, distressed texture, no
+          photographic people
+      - label: "Grateful Harvest"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Grateful Harvest", illustrated wheat and pumpkins, distressed
+          paper texture, warm terracotta and gold palette, no
+          photographic people
+    seo:
+      title_template: >-
+        {variant_title} Vintage Fall Poster | Retro Illustrated Wall Art |
+        Digital Download Printable
+      description_template: |
+        A {variant_title} vintage-style fall poster - hand-lettered
+        typography and illustrated retro artwork with a distressed,
+        nostalgic finish. Cozy autumn wall art for gallery walls, entryways,
+        or kitchens.
+
+        WHAT YOU GET
+        - High-resolution print-ready PDF files (US Letter and A4)
+
+        This is a digital file - no physical item will be shipped.
+      tags:
+        - vintage fall art
+        - retro fall poster
+        - fall wall art
+        - illustrated art
+        - printable art
+        - digital download
+        - autumn decor
+        - retro poster
+        - cozy decor
+        - instant download
+        - wall art print
+        - farmhouse decor
+
+  fall_vintage_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    # Same illustrated box-print artwork as fall_vintage_posters_canva -
+    # reuse the same generated design and import it a second time under
+    # this niche.
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Hello Fall Pumpkin Patch"
+        query: >-
+          Vintage retro fall poster, 1970s groovy typography, "Hello Fall"
+          text, illustrated pumpkin patch and falling leaves, warm
+          burnt-orange and mustard color palette, distressed paper
+          texture, no photographic people
+      - label: "Cozy Season Cabin"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Cozy Season", illustrated cabin in the woods surrounded by
+          falling leaves, distressed texture, deep rust and forest green
+          palette, no photographic people
+      - label: "Pumpkin Spice Life"
+        query: >-
+          Vintage retro fall poster, groovy 1970s typography reading
+          "Pumpkin Spice Life", illustrated coffee cup and autumn leaves,
+          warm cream and burnt orange palette, distressed texture, no
+          photographic people
+      - label: "Grateful Harvest"
+        query: >-
+          Vintage retro autumn poster, hand-lettered script text reading
+          "Grateful Harvest", illustrated wheat and pumpkins, distressed
+          paper texture, warm terracotta and gold palette, no
+          photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Vintage Fall Graphic | Retro Illustrated
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" vintage-style illustrated fall graphic,
+        printed as a bold box-print design - available on t-shirts,
+        sweatshirts, hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - vintage fall
+        - fall shirt
+        - retro tee
+        - illustrated tee
+        - fall hoodie
+        - fall mug
+        - cozy season
+        - autumn gift
+        - graphic tee
+        - box print tee
+        - autumn apparel
+        - pumpkin shirt
+
+  # --- Evergreen POD apparel/mugs (not tied to the fall/Halloween line -
+  # --- picked from 2026 trend research on what's actually selling now) -
+
+  retro_groovy_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Good Vibes Only"
+        query: >-
+          Retro 1970s groovy poster design, bold wavy typography reading
+          "Good Vibes Only", psychedelic sunburst background, warm
+          mustard-orange and brown color palette, no photographic people
+      - label: "Stay Groovy"
+        query: >-
+          Retro 1970s groovy poster design, bold bubble typography
+          reading "Stay Groovy", rainbow wave and daisy illustrations,
+          warm retro color palette, no photographic people
+      - label: "Choose Happy"
+        query: >-
+          Retro 1970s groovy poster design, round bubble typography
+          reading "Choose Happy", smiley face and psychedelic swirl
+          illustration, warm orange and teal palette, no photographic
+          people
+      - label: "Just Vibin"
+        query: >-
+          Retro 1970s groovy poster design, bold wavy typography reading
+          "Just Vibin'", illustrated retro sun and clouds, warm
+          terracotta and cream palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Retro Groovy Graphic | 70s Style T-Shirt, Hoodie
+        & Mug
+      description_template: |
+        A "{variant_title}" retro 1970s-style groovy graphic, printed as
+        a bold box-print design - available on t-shirts, sweatshirts,
+        hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - retro groovy shirt
+        - 70s style tee
+        - groovy shirt
+        - retro graphic tee
+        - vintage 70s shirt
+        - good vibes shirt
+        - retro mug
+        - groovy gift
+        - boho graphic tee
+        - aesthetic tee
+        - retro hoodie
+        - groovy mug
+
+  occupation_gift_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "Dog Mom"
+        query: >-
+          Illustrated retro-style poster design, bold hand-lettered
+          typography reading "Dog Mom", cute illustrated dog paw prints
+          and a bone, warm earthy color palette, no photographic people
+      - label: "Cat Dad"
+        query: >-
+          Illustrated retro-style poster design, bold hand-lettered
+          typography reading "Cat Dad", cute illustrated cat silhouette
+          and paw prints, warm earthy color palette, no photographic
+          people
+      - label: "Nurse Life"
+        query: >-
+          Illustrated poster design, bold typography reading "Nurse
+          Life", illustrated stethoscope and heart, calming teal and
+          cream color palette, no photographic people
+      - label: "Teacher Off Duty"
+        query: >-
+          Illustrated retro poster design, playful hand-lettered
+          typography reading "Teacher Off Duty", illustrated apple and
+          pencil, warm color palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Funny Gift Graphic | Occupation & Pet Parent
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" illustrated gift graphic, printed as a bold
+        box-print design - available on t-shirts, sweatshirts, hoodies,
+        and mugs. A fun, low-effort gift for the occasion or pet-parent
+        in your life.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - dog mom shirt
+        - cat dad shirt
+        - nurse shirt
+        - teacher shirt
+        - funny gift tee
+        - occupation gift
+        - pet parent gift
+        - nurse mug
+        - teacher gift
+        - graphic tee
+        - funny mug
+        - gift for her
+
+  america_250_patriotic_apparel_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    # 2026 is the USA's 250th anniversary (semiquincentennial) - a
+    # major, dated cultural moment driving real patriotic-gift demand
+    # this year specifically, not just an evergreen theme.
+    pod_sizes: [apparel_12x16, mug_9x4]
+    price_pod: 24.00
+    prompts:
+      - label: "America 250"
+        query: >-
+          Vintage patriotic poster design, bold distressed typography
+          reading "1776-2026 America 250", illustrated American flag and
+          stars, red white and blue color palette, retro textured, no
+          photographic people
+      - label: "We The People"
+        query: >-
+          Vintage patriotic poster design, bold distressed typography
+          reading "We The People", illustrated bald eagle and stars, red
+          white and blue palette, retro textured, no photographic people
+      - label: "Proud American"
+        query: >-
+          Vintage patriotic poster design, hand-lettered typography
+          reading "Proud American", illustrated stars and stripes,
+          distressed texture, red white and blue palette, no
+          photographic people
+      - label: "Land of the Free"
+        query: >-
+          Vintage patriotic poster design, bold typography reading "Land
+          of the Free", illustrated fireworks and flag, distressed
+          texture, red white and blue palette, no photographic people
+    seo:
+      title_template: >-
+        "{variant_title}" Patriotic Graphic | America 250th Anniversary
+        T-Shirt, Hoodie & Mug
+      description_template: |
+        A "{variant_title}" vintage-style patriotic graphic celebrating
+        America's 250th anniversary, printed as a bold box-print design -
+        available on t-shirts, sweatshirts, hoodies, and mugs.
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - america 250 shirt
+        - patriotic shirt
+        - 4th of july shirt
+        - usa graphic tee
+        - patriotic gift
+        - american flag tee
+        - vintage usa shirt
+        - patriotic mug
+        - freedom shirt
+        - retro america tee
+        - usa gift
+        - proud american
+
+  halloween_pattern_tumblers_canva:
+    type: canva
+    product_mode: pod
+    canva_design_type: poster
+    # All-over pattern, not a box-print graphic - crop-to-fill the POD
+    # print area edge to edge instead of the default "contain" fit.
+    pod_fit: cover
+    # All-over repeating patterns for 40oz tumblers and mugs, Canva-sourced
+    # per user preference (see halloween_pattern_tumblers_canva history) -
+    # original artwork in the same visual genre as trending tumbler wraps
+    # (purple w/ cat-in-pumpkin + jack-o'-lanterns, cozy critters, starry
+    # night, all-over jack-o'-lantern faces) without copying any specific
+    # existing commercial product's design.
+    pod_sizes: [mug_9x4, tumbler_40oz_straight]
+    # Blueprint 1715 ("Vacuum Thermal Tumbler, 40oz", Smart Printee
+    # provider), not 1509 ("Harrier") - Harrier tapers to a narrow
+    # unprinted white foot and costs $31.86; this one has straight walls
+    # (near-full-height print coverage), costs $13.96, and offers 12
+    # colors instead of just white. $32.99 gives a healthier ~35%+
+    # margin after Etsy's ~9.5% fees than Harrier's $47.99 did, and is
+    # more competitive against comparable Etsy tumbler listings.
+    price_pod: 32.99
+    prompts:
+      - label: Cat in Pumpkin
+        query: >-
+          A seamless all-over repeating pattern for a tumbler wrap print,
+          Halloween theme: a black cat peeking out of a jack-o'-lantern as
+          the main motif, smaller jack-o'-lantern faces scattered around,
+          white polka dots and small stars for texture, on a purple
+          background, flat bold illustrated icon style, no text,
+          edge-to-edge full-bleed pattern
+      - label: Cozy Critters
+        query: >-
+          A seamless all-over repeating pattern design for a tumbler/mug
+          wrap print, cozy Halloween theme: black cats, jack-o'-lantern
+          pumpkins, and ghosts scattered across a warm background, flat
+          bold illustrated icon style, no text, edge-to-edge full-bleed
+          pattern, trendy aesthetic
+      - label: Night Sky
+        query: >-
+          A seamless all-over repeating pattern design for a tumbler/mug
+          wrap print, Halloween night sky theme: bats, crescent moons, and
+          stars scattered across a deep midnight-purple background, flat
+          bold illustrated icon style, no text, edge-to-edge full-bleed
+          pattern
+      - label: Jack-o'-Lanterns
+        query: >-
+          A seamless all-over repeating pattern design for a tumbler/mug
+          wrap print, Halloween theme: illustrated jack-o'-lantern pumpkin
+          faces with varied expressions scattered edge to edge, flat bold
+          illustrated icon style, warm orange and black palette, no text,
+          full-bleed pattern
+    seo:
+      title_template: >-
+        {variant_title} Halloween Pattern | All-Over Print Tumbler & Mug
+        Wrap Design
+      description_template: |
+        A {variant_title} all-over Halloween pattern, wrapped edge to edge
+        on a 40oz tumbler - a bold, colorful print that stands out on the
+        shelf.
+
+        PRODUCT DETAILS
+        - Durable stainless steel construction with a glossy coating
+        - Double-wall vacuum insulation - keeps drinks hot or cold for hours
+        - Rubber-sealed push-down lid with reusable straw included
+        - Hand wash only
+
+        Available in multiple product types, sizes, and colors - see the
+        variant options on this listing.
+      tags:
+        - tumbler wrap
+        - halloween tumbler
+        - 40oz tumbler
+        - mug wrap design
+        - halloween mug
+        - pattern design
+        - all over print
+        - spooky pattern
+        - halloween pattern
+        - cup wrap design
+        - witchy tumbler
+        - pumpkin tumbler
+
+  fall_halloween_calendar_printable:
+    type: planner
+    product_mode: digital
+    # Canva's AI reliably produced decorative posters/invitations/articles
+    # for this (tried "document" and "poster" design_types, got an
+    # invoice, a fake press release, and a fake event poster - never an
+    # actual date grid), so this one is procedural like the other planner
+    # niches - exact grids are what design/generators/planner.py is for.
+    planner_template: monthly_calendar
+    header_template: "{variant_title}"
+    palettes: [terracotta_boho, midnight_gold, pumpkin_orange, sage_minimal]
+    variants:
+      - name: October 2026
+        kwargs: {month: 10, year: 2026}
+      - name: November 2026
+        kwargs: {month: 11, year: 2026}
+      - name: Year Round Fall
+        kwargs: {undated: true}
+    digital_sizes: [letter_8.5x11, a4]
+    # $4.50: printable calendars/planners on Etsy cluster $3-8 (plain
+    # ones nearer $1.50-3, "premium"/illustrated ones higher); these
+    # have a bold illustrated background, not a bare grid.
+    price_digital: 4.50
+    seo:
+      title_template: >-
+        {variant_title} Printable Calendar | Fall Halloween Monthly
+        Planner Page | Instant Download
+      description_template: |
+        A {variant_title} printable calendar page - a clean, illustrated
+        way to plan out your month.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - fall calendar
+        - halloween calendar
+        - printable calendar
+        - monthly planner
+        - october calendar
+        - november calendar
+        - digital download
+        - instant download
+        - fall printable
+        - autumn planner
+        - cozy planner
+        - desk calendar
+
+  halloween_weekly_planner_printable:
+    type: planner
+    product_mode: digital
+    # Same reasoning as fall_halloween_calendar_printable: Canva can't
+    # reliably produce an actual write-in weekly grid, so this uses the
+    # illustrated-background + procedural-grid pattern (see
+    # pipeline.canva_import.import_weekly_planner_with_illustrated_background)
+    # rather than asking Canva's AI to generate the grid itself.
+    planner_template: weekly_planner
+    header_template: "{variant_title}"
+    palettes: [terracotta_boho, midnight_gold, pumpkin_orange, sage_minimal]
+    variants:
+      - name: Weekly Planner
+    digital_sizes: [letter_8.5x11, a4]
+    # Matches fall_halloween_calendar_printable's single-design pricing -
+    # bold illustrated background, fillable write-in grid.
+    price_digital: 4.50
+    seo:
+      title_template: >-
+        Halloween Weekly Planner Printable | Spooky Cute Fillable
+        Undated Week Planner Page | Instant Download
+      description_template: |
+        A spooky-cute Halloween weekly planner page - a bold illustrated
+        design with a clean, fillable Monday-Sunday grid plus a notes
+        section, for planning out your week by hand.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+        - Undated - use it any week, print as many as you like
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - weekly planner
+        - halloween planner
+        - printable planner
+        - fillable planner
+        - undated planner
+        - digital download
+        - instant download
+        - spooky planner
+        - fall planner
+        - cozy planner
+        - productivity planner
+        - planner page
+        - to do list
+
+  # --- Two more trending printable formats spotted from competitor -----
+  # --- Pinterest activity: a cauldron-shaped mood tracker and an -------
+  # --- icon-badged weekly to-do list. Both procedural (design/generators
+  # --- /planner.py's mood_tracker + weekly_todo templates) - built from
+  # --- this repo's own icon set and an original cauldron illustration,
+  # --- not a trace of any specific competitor listing (no borrowed
+  # --- character art, no third-party branding like "Hocus Pocus").
+  # --- Palettes deliberately not reused from any other Halloween niche
+  # --- above, so the storefront doesn't read as one repeated color
+  # --- scheme (pastel_cuteoween/ocean_calm are otherwise unused here).
+  halloween_mood_tracker_printable:
+    type: planner
+    product_mode: digital
+    planner_template: mood_tracker
+    header_template: "{variant_title}"
+    # midnight_gold/witchy_purple deliberately excluded here: their pale
+    # cream "ink" is designed for their own dark background, but planner
+    # templates always render on a plain white page (see PAGE_BG at the
+    # top of design/generators/planner.py) - on white that ink is nearly
+    # invisible. Only palettes with a dark ink color belong in a planner
+    # niche's palette list.
+    palettes: [pastel_cuteoween, ocean_calm, clay_rust]
+    variants:
+      - name: Witchy Mood Tracker
+      - name: Spellbound Mood Tracker
+      - name: Cauldron Mood Tracker
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.50
+    seo:
+      title_template: >-
+        {variant_title} Printable | Halloween Cauldron Monthly Mood
+        Tracker | Digital Download PDF
+      description_template: |
+        A {variant_title} - a playful cauldron-shaped monthly mood
+        tracker with a numbered day grid and a color-coded mood key, for
+        checking in with yourself all month long.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+        - Undated - use it any month, print as many as you like
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - mood tracker
+        - halloween planner
+        - printable planner
+        - monthly tracker
+        - digital download
+        - instant download
+        - spooky planner
+        - self care planner
+        - mental health pdf
+        - witchy planner
+        - cauldron tracker
+        - undated tracker
+
+  halloween_weekly_todo_printable:
+    type: planner
+    product_mode: digital
+    planner_template: weekly_todo
+    header_template: "{variant_title}"
+    palettes: [ocean_calm, pastel_cuteoween, blush_neutral]
+    variants:
+      - name: Weekly To-Do List
+      - name: Spooky Season Checklist
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        Halloween {variant_title} Printable | Cute Spooky Season Weekly
+        Checklist | Digital Download PDF
+      description_template: |
+        A {variant_title} - a cute icon-badged checklist for each day of
+        the week plus a self-care section, for keeping spooky season
+        organized.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+        - Undated - use it any week, print as many as you like
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - weekly checklist
+        - halloween planner
+        - printable planner
+        - to do list
+        - digital download
+        - instant download
+        - spooky planner
+        - fall planner
+        - cozy planner
+        - productivity planner
+        - planner page
+        - self care planner
