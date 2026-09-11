@@ -139,7 +139,7 @@ def _detect_safe_zone(img: Image.Image, tol: int = 14, inset: float = 0.015) -> 
     return left + inset_x, top + inset_y, right - inset_x, bottom - inset_y
 
 
-def _detect_paper_box(img: Image.Image, thresh: int = 40, sample_r: int = 3, inset: float = 0.015) -> tuple[int, int, int, int]:
+def _detect_paper_box(img: Image.Image, thresh: int = 40, sample_r: int = 3, inset: float = 0.0) -> tuple[int, int, int, int]:
     """Like _detect_safe_zone, but for a photorealistic lifestyle-photo
     background (a "blank paper on a tablecloth" flatlay) instead of a
     flat-illustration one. A photoreal paper mockup usually has its own
@@ -152,7 +152,16 @@ def _detect_paper_box(img: Image.Image, thresh: int = 40, sample_r: int = 3, ins
     scans for local texture variance: a tablecloth has real per-pixel
     noise/weave, a paper (even in soft shadow) is smooth, so the
     tablecloth/paper boundary shows up regardless of any shading gradient
-    within the paper itself."""
+    within the paper itself.
+
+    `inset` defaults to 0 here (unlike _detect_safe_zone's 0.015) - there
+    is no hard border/outline to stay clear of on a photoreal paper edge,
+    only a soft shadow gradient the detected box already lands close to
+    the true edge of. Any positive inset shrinks a box that's often
+    already a few px short of the true edge, compounding into a visible
+    gap - this is exactly what happened the first time this was fixed
+    (the detected box was correct, but the added inset re-introduced a
+    smaller version of the same bug on all four sides)."""
     w, h = img.size
     px = img.load()
     cx, cy = w // 2, h // 2
