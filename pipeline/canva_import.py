@@ -139,6 +139,52 @@ def _detect_safe_zone(img: Image.Image, tol: int = 14, inset: float = 0.015) -> 
     return left + inset_x, top + inset_y, right - inset_x, bottom - inset_y
 
 
+def _detect_paper_box(img: Image.Image, thresh: int = 40, sample_r: int = 3, inset: float = 0.015) -> tuple[int, int, int, int]:
+    """Like _detect_safe_zone, but for a photorealistic lifestyle-photo
+    background (a "blank paper on a tablecloth" flatlay) instead of a
+    flat-illustration one. A photoreal paper mockup usually has its own
+    soft shadow/gradient near the edges, so a color-tolerance scan
+    (_detect_safe_zone) stops at the point where that gradient exceeds
+    the tolerance - short of the paper's true extent - leaving a visible
+    gap between the composited content and the background's own paper
+    shape (shipped once on the Year-Round-Fall/October/November lifestyle
+    photos before being caught and fixed - see git history). This instead
+    scans for local texture variance: a tablecloth has real per-pixel
+    noise/weave, a paper (even in soft shadow) is smooth, so the
+    tablecloth/paper boundary shows up regardless of any shading gradient
+    within the paper itself."""
+    w, h = img.size
+    px = img.load()
+    cx, cy = w // 2, h // 2
+
+    def variance(x: int, y: int) -> float:
+        vals = []
+        for dx in range(-sample_r, sample_r + 1):
+            for dy in range(-sample_r, sample_r + 1):
+                xx, yy = x + dx, y + dy
+                if 0 <= xx < w and 0 <= yy < h:
+                    vals.append(sum(px[xx, yy][:3]))
+        mean = sum(vals) / len(vals)
+        return sum((v - mean) ** 2 for v in vals) / len(vals)
+
+    left = cx
+    while left > 0 and variance(left, cy) < thresh:
+        left -= 1
+    right = cx
+    while right < w - 1 and variance(right, cy) < thresh:
+        right += 1
+    top = cy
+    while top > 0 and variance(cx, top) < thresh:
+        top -= 1
+    bottom = cy
+    while bottom < h - 1 and variance(cx, bottom) < thresh:
+        bottom += 1
+
+    inset_x = int((right - left) * inset)
+    inset_y = int((bottom - top) * inset)
+    return left + inset_x, top + inset_y, right - inset_x, bottom - inset_y
+
+
 def _fit_within(master: Image.Image, max_w: int, max_h: int) -> Image.Image:
     """Scale `master` to fit entirely within (max_w, max_h), preserving
     its own aspect ratio - the whole graphic stays visible, sized for a
