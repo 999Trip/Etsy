@@ -339,6 +339,15 @@ per-order fulfillment, anything with real recurring cost (a paid tool,
 an ad spend) - not for "should I build the thing that's obviously
 working."
 
+**Standing exception: hold off on new Printify physical products (apparel,
+shirts, etc.) until the user confirms a payment method is on file for
+additional listings.** This doesn't block digital-only work (printables,
+calendars, planners, wrap-file bundles) or anything on already-approved
+product types (tumblers) - it's specifically new Printify product
+*categories* while billing is unconfirmed. Check with the user before
+publishing a new physical product type; ask if this still holds before
+assuming it's been lifted.
+
 ## Notes and caveats
 
 - **Procedural generation is free; Canva generation is not.** The
