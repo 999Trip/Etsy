@@ -323,6 +323,22 @@ None of this is optional polish - it's the difference between a listing
 you'd actually want a customer to see and one that ships an obvious
 flaw because nobody looked closely before hitting publish.
 
+**When a competitor design/format is clearly working, recreate it in
+our own style and ship it - don't wait for a go-ahead first.** This is
+how the Halloween weekly planner got made: the user found a
+well-performing competitor listing's format (illustrated background,
+fillable write-in grid), and the instruction going forward is to spot
+that pattern proactively and act on it the same way, not just when
+asked. In practice that means: build it with this repo's own generators/
+palettes/assets (never trace, copy exact layouts pixel-for-pixel, or
+reuse anyone else's copy/branding/trademarked characters - recreate the
+*concept*, not the artifact), run it through the QC steps above, publish
+it, and report what shipped. Reserve asking first for the genuinely
+open decisions - pricing a materially new product, personalization/
+per-order fulfillment, anything with real recurring cost (a paid tool,
+an ad spend) - not for "should I build the thing that's obviously
+working."
+
 ## Notes and caveats
 
 - **Procedural generation is free; Canva generation is not.** The
