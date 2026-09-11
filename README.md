@@ -359,6 +359,33 @@ deep teal/orange, burgundy/cream, navy/gold) rather than defaulting back
 to the same purple. Keep the palette on-brand for the niche/season, just
 don't repeat it listing after listing.
 
+**Same rule applies to creature/motif choice, not just color.** Don't
+default to a black cat every time a Halloween design needs a companion
+animal/creature - mix in skeletons, spiders, bats, owls, etc. across
+different listings so the catalog doesn't read as one repeated cast of
+characters.
+
+**Illustrated planners/trackers: Canva illustration + procedural overlay,
+not pure Pillow line art.** Established with the cauldron mood tracker
+and cute weekly to-do list (see `output/_review/` for the approved
+references and the git history around them for the exact recipe): when a
+trending printable format calls for genuinely illustrated art (a realistic
+cauldron, a cute mug/pumpkin/ghost cluster, etc.) rather than flat
+geometric shapes, generate that illustration in Canva - ask for it
+composed as a banner/border across roughly the top third to top fifth of
+the page with the rest left completely blank parchment (this is what
+makes it reliably compositable; without that constraint Canva fills the
+whole page and there's nowhere left to put a grid). Then export at high
+res and composite the functional content (day-number grids, checkboxes,
+mood-key text, titles) on top with PIL/Pillow, positioned in the
+guaranteed-blank area - never ask Canva to render the precise text/numbers
+itself, it isn't reliable for that (same reasoning as the existing
+illustrated-weekly-planner/calendar niches). A plain vector-drawn cauldron
+or mug reads as an obvious placeholder, not "an actual one" - this is the
+difference between a listing that looks trend-competitive and one that
+doesn't, so don't fall back to pure-Pillow icons for this category even
+though it's more steps than the fully-procedural planner templates.
+
 ## Notes and caveats
 
 - **Procedural generation is free; Canva generation is not.** The
