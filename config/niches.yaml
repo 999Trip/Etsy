@@ -1066,3 +1066,102 @@ niches:
         - productivity planner
         - planner page
         - to do list
+
+  # --- Two more trending printable formats spotted from competitor -----
+  # --- Pinterest activity: a cauldron-shaped mood tracker and an -------
+  # --- icon-badged weekly to-do list. Both procedural (design/generators
+  # --- /planner.py's mood_tracker + weekly_todo templates) - built from
+  # --- this repo's own icon set and an original cauldron illustration,
+  # --- not a trace of any specific competitor listing (no borrowed
+  # --- character art, no third-party branding like "Hocus Pocus").
+  # --- Palettes deliberately not reused from any other Halloween niche
+  # --- above, so the storefront doesn't read as one repeated color
+  # --- scheme (pastel_cuteoween/ocean_calm are otherwise unused here).
+  halloween_mood_tracker_printable:
+    type: planner
+    product_mode: digital
+    planner_template: mood_tracker
+    header_template: "{variant_title}"
+    # midnight_gold/witchy_purple deliberately excluded here: their pale
+    # cream "ink" is designed for their own dark background, but planner
+    # templates always render on a plain white page (see PAGE_BG at the
+    # top of design/generators/planner.py) - on white that ink is nearly
+    # invisible. Only palettes with a dark ink color belong in a planner
+    # niche's palette list.
+    palettes: [pastel_cuteoween, ocean_calm, clay_rust]
+    variants:
+      - name: Witchy Mood Tracker
+      - name: Spellbound Mood Tracker
+      - name: Cauldron Mood Tracker
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.50
+    seo:
+      title_template: >-
+        {variant_title} Printable | Halloween Cauldron Monthly Mood
+        Tracker | Digital Download PDF
+      description_template: |
+        A {variant_title} - a playful cauldron-shaped monthly mood
+        tracker with a numbered day grid and a color-coded mood key, for
+        checking in with yourself all month long.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+        - Undated - use it any month, print as many as you like
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - mood tracker
+        - halloween planner
+        - printable planner
+        - monthly tracker
+        - digital download
+        - instant download
+        - spooky planner
+        - self care planner
+        - mental health pdf
+        - witchy planner
+        - cauldron tracker
+        - undated tracker
+
+  halloween_weekly_todo_printable:
+    type: planner
+    product_mode: digital
+    planner_template: weekly_todo
+    header_template: "{variant_title}"
+    palettes: [ocean_calm, pastel_cuteoween, blush_neutral]
+    variants:
+      - name: Weekly To-Do List
+      - name: Spooky Season Checklist
+    digital_sizes: [letter_8.5x11, a4]
+    price_digital: 4.00
+    seo:
+      title_template: >-
+        Halloween {variant_title} Printable | Cute Spooky Season Weekly
+        Checklist | Digital Download PDF
+      description_template: |
+        A {variant_title} - a cute icon-badged checklist for each day of
+        the week plus a self-care section, for keeping spooky season
+        organized.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+        - Undated - use it any week, print as many as you like
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - weekly checklist
+        - halloween planner
+        - printable planner
+        - to do list
+        - digital download
+        - instant download
+        - spooky planner
+        - fall planner
+        - cozy planner
+        - productivity planner
+        - planner page
+        - self care planner
