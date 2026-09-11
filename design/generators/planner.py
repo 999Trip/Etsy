@@ -11,11 +11,16 @@ out as top sellers.
 Deliberately low-ink: the page background is always plain white
 regardless of the chosen palette (which only drives text/line color) -
 "low-ink" printables (buyers save money by not printing solid colored
-backgrounds) are a named 2026 trend in their own right.
+backgrounds) are a named 2026 trend in their own right. Exception:
+mood_tracker and weekly_todo are illustrated-parchment templates
+(modeled on trending hand-drawn cauldron/checklist printables) and
+paint their own warm cream page tint instead of using PAGE_BG - that
+look is the point for those two, not an oversight.
 """
 from __future__ import annotations
 
 import calendar as _calendar
+import math
 
 from PIL import ImageColor, ImageFont
 
@@ -404,12 +409,143 @@ def _mood_colors(palette: dict) -> list[tuple[int, int, int]]:
     ]
 
 
+CREAM_PAGE_BG = (0xF6, 0xEC, 0xDA)
+_STEAM_GREEN = (0x8F, 0xAE, 0x6B)
+
+
+def _fill_page(canvas: Canvas, color) -> None:
+    """Paint the whole canvas a solid color - used by the illustrated-
+    parchment templates to override the shared white PAGE_BG."""
+    canvas.draw.rectangle([0, 0, canvas.w, canvas.h], fill=color)
+
+
+def _dotted_line(draw, x0: float, x1: float, y: float, fill, dot: float = 3, gap: float = 3.5) -> None:
+    x = x0
+    while x < x1:
+        x_end = min(x + dot, x1)
+        draw.line([(x, y), (x_end, y)], fill=fill, width=1)
+        x += dot + gap
+
+
+def _mini_star(draw, cx: float, cy: float, r: float, fill) -> None:
+    points = []
+    for i in range(8):
+        angle = math.pi / 4 * i - math.pi / 2
+        radius = r if i % 2 == 0 else r * 0.42
+        points.append((cx + math.cos(angle) * radius, cy + math.sin(angle) * radius))
+    draw.polygon(points, fill=fill)
+
+
+def _mini_heart(draw, cx: float, cy: float, r: float, fill) -> None:
+    lobe_r = r * 0.42
+    ldx = lobe_r * 0.6
+    ly = cy - lobe_r * 0.25
+    draw.ellipse([cx - ldx - lobe_r, ly - lobe_r, cx - ldx + lobe_r, ly + lobe_r], fill=fill)
+    draw.ellipse([cx + ldx - lobe_r, ly - lobe_r, cx + ldx + lobe_r, ly + lobe_r], fill=fill)
+    draw.polygon([(cx - lobe_r * 1.7, cy - lobe_r * 0.1), (cx + lobe_r * 1.7, cy - lobe_r * 0.1), (cx, cy + r * 0.9)], fill=fill)
+
+
+def _mood_glyph(draw, name: str, cx: float, cy: float, r: float, color) -> None:
+    """A tiny glyph inside a mood-key swatch dot - matches the reference
+    mood tracker's icon-in-circle key (star/heart/sun/leaf/cloud/bolt/
+    spiral/skull) instead of a plain color dot."""
+    if name == "star":
+        _mini_star(draw, cx, cy, r * 0.9, color)
+    elif name == "heart":
+        _mini_heart(draw, cx, cy, r * 0.85, color)
+    elif name == "sun":
+        draw.ellipse([cx - r * 0.4, cy - r * 0.4, cx + r * 0.4, cy + r * 0.4], fill=color)
+        for i in range(8):
+            ang = i * math.pi / 4
+            x0, y0 = cx + math.cos(ang) * r * 0.55, cy + math.sin(ang) * r * 0.55
+            x1, y1 = cx + math.cos(ang) * r * 0.82, cy + math.sin(ang) * r * 0.82
+            draw.line([(x0, y0), (x1, y1)], fill=color, width=1)
+    elif name == "leaf":
+        draw.polygon([(cx, cy - r * 0.7), (cx + r * 0.5, cy), (cx, cy + r * 0.7), (cx - r * 0.5, cy)], fill=color)
+        draw.line([(cx, cy - r * 0.6), (cx, cy + r * 0.6)], fill=_shade(color, 0.25) if isinstance(color, str) else color, width=1)
+    elif name == "cloud":
+        for dx, dy, rr in [(-r * 0.32, r * 0.12, r * 0.32), (r * 0.05, -r * 0.05, r * 0.4), (r * 0.38, r * 0.14, r * 0.28)]:
+            draw.ellipse([cx + dx - rr, cy + dy - rr, cx + dx + rr, cy + dy + rr], fill=color)
+    elif name == "bolt":
+        draw.polygon(
+            [
+                (cx + r * 0.1, cy - r * 0.8), (cx - r * 0.35, cy + r * 0.05), (cx - r * 0.05, cy + r * 0.05),
+                (cx - r * 0.15, cy + r * 0.8), (cx + r * 0.4, cy - r * 0.1), (cx + r * 0.05, cy - r * 0.1),
+            ],
+            fill=color,
+        )
+    elif name == "spiral":
+        pts = []
+        for i in range(20):
+            t = i / 19
+            ang = t * 2.6 * math.pi
+            rad = r * 0.12 + t * r * 0.55
+            pts.append((cx + math.cos(ang) * rad, cy + math.sin(ang) * rad))
+        draw.line(pts, fill=color, width=2)
+    elif name == "skull":
+        draw.ellipse([cx - r * 0.42, cy - r * 0.48, cx + r * 0.42, cy + r * 0.2], fill=color)
+        draw.rectangle([cx - r * 0.28, cy, cx + r * 0.28, cy + r * 0.35], fill=color)
+
+
+def _draw_candle(draw, cx: float, cy: float, w: float, h: float, ink, flame_color) -> None:
+    draw.rectangle([cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2], fill=ink)
+    draw.ellipse([cx - w * 0.75, cy - h / 2 - w * 0.15, cx + w * 0.75, cy - h / 2 + w * 0.15], fill=ink)
+    flame_w, flame_h = w * 1.3, h * 0.35
+    fy = cy - h / 2 - w * 0.15
+    draw.polygon(
+        [(cx, fy - flame_h), (cx + flame_w / 2, fy - flame_h * 0.15), (cx, fy + flame_h * 0.1), (cx - flame_w / 2, fy - flame_h * 0.15)],
+        fill=flame_color,
+    )
+
+
+def _draw_potion(draw, cx: float, cy: float, w: float, h: float, ink, liquid) -> None:
+    neck_w, neck_h = w * 0.32, h * 0.22
+    draw.rectangle([cx - neck_w / 2, cy - h / 2, cx + neck_w / 2, cy - h / 2 + neck_h], outline=ink, width=2)
+    draw.ellipse([cx - neck_w * 0.7, cy - h / 2 - neck_h * 0.4, cx + neck_w * 0.7, cy - h / 2 + neck_h * 0.3], fill=ink)
+    body_top = cy - h / 2 + neck_h
+    draw.rounded_rectangle([cx - w / 2, body_top, cx + w / 2, cy + h / 2], radius=w * 0.3, outline=ink, width=2)
+    draw.rounded_rectangle(
+        [cx - w / 2 + 2, body_top + (cy + h / 2 - body_top) * 0.35, cx + w / 2 - 2, cy + h / 2 - 2],
+        radius=w * 0.25, fill=liquid,
+    )
+
+
+def _draw_mini_cauldron_scene(draw, cx: float, cy: float, r: float, ink) -> None:
+    """A tiny cauldron-with-ghosts vignette (the Sunday cell's corner
+    illustration on the weekly to-do list) - separate from the big
+    mood-tracker cauldron so its size/detail level fits a small cell."""
+    pot_rx, pot_ry = r * 0.85, r * 0.55
+    draw.ellipse([cx - pot_rx, cy - pot_ry, cx + pot_rx, cy + pot_ry], fill=ink)
+    leg_len = r * 0.22
+    for side in (-1, 0, 1):
+        lx = cx + side * pot_rx * 0.55
+        draw.line([(lx, cy + pot_ry * 0.95), (lx - leg_len * 0.4, cy + pot_ry * 0.95 + leg_len)], fill=ink, width=2)
+        draw.line([(lx, cy + pot_ry * 0.95), (lx + leg_len * 0.4, cy + pot_ry * 0.95 + leg_len)], fill=ink, width=2)
+    draw_icon(draw, "ghost", cx - pot_rx * 0.7, cy - pot_ry * 1.6, r * 0.32, "#FFFFFF")
+    draw_icon(draw, "ghost", cx + pot_rx * 0.75, cy - pot_ry * 1.9, r * 0.24, "#FFFFFF")
+
+
+def _spiderweb(draw, cx: float, cy: float, r: float, color) -> None:
+    for i in range(5):
+        ang = math.pi / 2 * (i / 4)
+        draw.line([(cx, cy), (cx + math.cos(ang) * r, cy - math.sin(ang) * r)], fill=color, width=1)
+    for frac in (0.4, 0.7, 1.0):
+        pts = []
+        for i in range(6):
+            ang = math.pi / 2 * (i / 5)
+            pts.append((cx + math.cos(ang) * r * frac, cy - math.sin(ang) * r * frac))
+        draw.line(pts, fill=color, width=1)
+
+
 def _mood_tracker(canvas: Canvas, palette: dict, header_text: str) -> None:
     """A month-at-a-glance mood tracker: a numbered day grid inside a
-    cauldron illustration, with a color-coded mood key beside it. An
-    original layout inspired by the trending "cauldron mood tracker"
-    printable format - not a copy of any specific listing (no borrowed
-    character art, no third-party branding)."""
+    hand-drawn-style cauldron outline, with a color-coded mood key
+    beside it. Modeled closely on the trending "cauldron mood tracker"
+    printable format the user pointed to - own art (ink line-work, no
+    traced/borrowed illustration) and own copy (no third-party movie
+    title or character silhouettes), but deliberately the same overall
+    look rather than a from-scratch reinterpretation."""
+    _fill_page(canvas, CREAM_PAGE_BG)
     margin = int(canvas.w * 0.07)
     top = _header(canvas, palette, header_text, margin)
     line_color = palette["accent"][-1]
@@ -420,104 +556,73 @@ def _mood_tracker(canvas: Canvas, palette: dict, header_text: str) -> None:
     )
     top += int(canvas.h * 0.05)
 
-    key_w = canvas.w * 0.3
-    pot_area_x0 = margin
+    deco_w = canvas.w * 0.1
+    key_w = canvas.w * 0.28
+    pot_area_x0 = margin + deco_w
     pot_area_x1 = canvas.w - margin - key_w
     pot_cx = (pot_area_x0 + pot_area_x1) / 2
     area_top = top + int(canvas.h * 0.035)
     area_bottom = canvas.h - margin - int(canvas.h * 0.09)
 
-    pot_w = (pot_area_x1 - pot_area_x0) * 0.92
-    pot_h = (area_bottom - area_top) * 0.82
+    pot_w = (pot_area_x1 - pot_area_x0) * 0.94
+    pot_h = (area_bottom - area_top) * 0.8
     pot_r = min(pot_w, pot_h) / 2
-    pot_cy = area_top + pot_r + int(canvas.h * 0.02)
-    line_w = max(3, int(canvas.w * 0.004))
-    pot_fill = palette["ink"]
-    plaque_fill = (255, 255, 255)
-    highlight = _tint(palette["ink"], 0.55)
+    line_w = max(3, int(canvas.w * 0.0045))
 
-    # A real pot silhouette, not a circle: a wide rounded belly (ellipse)
-    # topped by a narrower tapered neck (trapezoid, its bottom hidden
-    # under the belly so the join reads as one continuous shape) and a
-    # flared rim lip, solid-filled like cast iron - the numbered days sit
-    # on a light plaque inset into the belly instead of directly on the
-    # dark fill.
-    belly_rx = pot_r * 1.0
-    belly_ry = pot_r * 0.86
-    belly_cy = pot_cy + pot_r * 0.08
-    neck_top_y = belly_cy - belly_ry - pot_r * 0.3
-    neck_top_w = belly_rx * 0.56
-    neck_bottom_w = belly_rx * 0.97
-    rim_h = pot_r * 0.15
+    # A single rounded body outline capped by a flatter rim ellipse right
+    # at its shoulder - reads as "pot with a lip", closer to the
+    # reference's hand-drawn cauldron than a distinct neck/handle
+    # assembly. No handles (the reference doesn't have them either).
+    body_rx = pot_r * 0.98
+    body_ry = pot_r * 0.92
+    body_cy = area_top + body_ry + int(canvas.h * 0.05)
+    # Position the rim where the body already has real width (not at its
+    # polar tip, which is a single point) so the rim's ends land ON the
+    # body's curve instead of floating above it with a gap - an ellipse
+    # outline only touches its own pole at one point, so anchoring the
+    # rim there (as an earlier version did) left a visible gap all the
+    # way round before the two curves met.
+    rim_frac = 0.82
+    rim_cy = body_cy - body_ry * rim_frac
+    rim_rx = body_rx * math.sqrt(1 - rim_frac**2) * 1.06
+    rim_ry = pot_r * 0.11
 
-    # steam wisps above the pot mouth
-    for dx in (-pot_r * 0.35, 0.0, pot_r * 0.35):
+    # green swirly steam above the rim
+    for dx in (-pot_r * 0.4, -pot_r * 0.05, pot_r * 0.35):
         sx = pot_cx + dx
-        sy = neck_top_y - int(canvas.h * 0.008)
-        for seg in range(3):
-            wob = pot_r * 0.07 * (1 if seg % 2 == 0 else -1)
-            nx, ny = sx + wob, sy - int(canvas.h * 0.018)
-            canvas.draw.line([(sx, sy), (nx, ny)], fill=palette["accent"][0], width=3)
-            sx, sy = nx, ny
+        sy = rim_cy - rim_ry - int(canvas.h * 0.005)
+        pts = [(sx, sy)]
+        for seg in range(1, 4):
+            ang = seg * 2.2
+            wob = math.sin(ang) * pot_r * 0.09
+            ny = sy - seg * canvas.h * 0.014
+            pts.append((sx + wob, ny))
+        canvas.draw.line(pts, fill=_STEAM_GREEN, width=3, joint="curve")
 
-    # handles at the shoulder (where neck meets belly), drawn before the
-    # body fill so the body's edge overlaps their attachment points
-    handle_h = pot_r * 0.4
-    handle_w = pot_r * 0.14
-    hy = belly_cy - belly_ry * 0.55
-    canvas.draw.arc(
-        [pot_cx + neck_bottom_w - handle_w, hy - handle_h / 2, pot_cx + neck_bottom_w + handle_w, hy + handle_h / 2],
-        start=270, end=90, fill=palette["ink"], width=line_w,
-    )
-    canvas.draw.arc(
-        [pot_cx - neck_bottom_w - handle_w, hy - handle_h / 2, pot_cx - neck_bottom_w + handle_w, hy + handle_h / 2],
-        start=90, end=270, fill=palette["ink"], width=line_w,
-    )
-
-    # legs (tripod under the belly)
-    leg_len = pot_r * 0.18
+    # tripod: small curled/hooked feet rather than straight angular legs
+    foot_r = pot_r * 0.11
     for side in (-1, 0, 1):
-        lx = pot_cx + side * pot_r * 0.55
-        ly0 = belly_cy + belly_ry * 0.98
-        canvas.draw.line([(lx, ly0), (lx - leg_len * 0.5, ly0 + leg_len)], fill=palette["ink"], width=line_w)
-        canvas.draw.line([(lx, ly0), (lx + leg_len * 0.5, ly0 + leg_len)], fill=palette["ink"], width=line_w)
+        fx = pot_cx + side * body_rx * 0.55
+        fy = body_cy + body_ry * 0.97
+        canvas.draw.arc(
+            [fx - foot_r, fy - foot_r * 0.3, fx + foot_r, fy + foot_r * 1.5], start=200, end=520, fill=palette["ink"], width=line_w,
+        )
 
-    # neck (trapezoid, bottom corners hidden under the belly ellipse)
-    canvas.draw.polygon(
-        [
-            (pot_cx - neck_top_w, neck_top_y), (pot_cx + neck_top_w, neck_top_y),
-            (pot_cx + neck_bottom_w, belly_cy), (pot_cx - neck_bottom_w, belly_cy),
-        ],
-        fill=pot_fill,
-    )
-    # belly (solid iron-pot fill, outlined so it reads crisply on white)
     canvas.draw.ellipse(
-        [pot_cx - belly_rx, belly_cy - belly_ry, pot_cx + belly_rx, belly_cy + belly_ry],
-        fill=pot_fill, outline=palette["ink"], width=line_w,
+        [pot_cx - body_rx, body_cy - body_ry, pot_cx + body_rx, body_cy + body_ry],
+        outline=palette["ink"], width=line_w,
     )
-    # soft highlight streak for a touch of dimension, upper-left of the belly
-    canvas.draw.arc(
-        [pot_cx - belly_rx * 0.72, belly_cy - belly_ry * 0.72, pot_cx - belly_rx * 0.1, belly_cy + belly_ry * 0.15],
-        start=200, end=260, fill=highlight, width=max(2, line_w - 1),
-    )
-    # rim lip
     canvas.draw.ellipse(
-        [pot_cx - neck_top_w * 1.08, neck_top_y - rim_h / 2, pot_cx + neck_top_w * 1.08, neck_top_y + rim_h / 2],
-        fill=pot_fill, outline=palette["ink"], width=line_w,
+        [pot_cx - rim_rx, rim_cy - rim_ry, pot_cx + rim_rx, rim_cy + rim_ry],
+        outline=palette["ink"], width=line_w,
     )
 
-    # numbered day grid, on a light plaque inset into the belly so the
-    # numbers/circles stay legible against the solid pot fill
+    # numbered day grid, straight on the parchment inside the pot outline
     n_days, cols, rows = 31, 7, 5
-    grid_w = pot_r * 1.3
+    grid_w = pot_r * 1.28
     grid_h = grid_w * rows / cols
     gx0 = pot_cx - grid_w / 2
-    gy0 = belly_cy - grid_h / 2 + pot_r * 0.06
-    plaque_pad = pot_r * 0.09
-    canvas.draw.rounded_rectangle(
-        [gx0 - plaque_pad, gy0 - plaque_pad, gx0 + grid_w + plaque_pad, gy0 + grid_h + plaque_pad],
-        radius=plaque_pad * 1.2, fill=plaque_fill, outline=palette["ink"], width=2,
-    )
+    gy0 = body_cy - grid_h / 2 + pot_r * 0.08
     cell_w, cell_h = grid_w / cols, grid_h / rows
     circle_r = min(cell_w, cell_h) * 0.36
     num_font = ImageFont.truetype(resolve_font("sans_bold"), max(10, int(cell_h * 0.32)))
@@ -533,28 +638,37 @@ def _mood_tracker(canvas: Canvas, palette: dict, header_text: str) -> None:
             canvas.draw.text((ccx, ccy), str(n), font=num_font, fill=palette["ink"], anchor="mm")
             n += 1
 
+    # side decorations: candle + cat on the left, potion on the right,
+    # echoing the reference's witchy still-life props
+    deco_cx = margin + deco_w * 0.5
+    _draw_candle(canvas.draw, deco_cx, body_cy - body_ry * 0.3, deco_w * 0.22, deco_w * 0.55, palette["ink"], "#F2A65A")
+    draw_icon(canvas.draw, "black_cat", deco_cx, body_cy + body_ry * 0.35, deco_w * 0.42, palette["ink"])
+    _spiderweb(canvas.draw, margin + deco_w * 0.35, area_top + int(canvas.h * 0.01), deco_w * 0.6, palette["ink"])
+
+    potion_cx = canvas.w - margin - key_w * 0.35
+    _draw_potion(canvas.draw, potion_cx, area_top + int(canvas.h * 0.02), deco_w * 0.4, deco_w * 0.65, palette["ink"], palette["accent"][1])
+
     # mood key
     key_x0 = canvas.w - margin - key_w + int(canvas.w * 0.02)
     key_title_font = ImageFont.truetype(resolve_font("serif_bold"), int(canvas.w * 0.03))
     key_font = ImageFont.truetype(resolve_font("sans_bold"), int(canvas.w * 0.02))
-    canvas.draw.text((key_x0, area_top), "MOOD KEY", font=key_title_font, fill=palette["ink"])
+    key_top0 = area_top + int(canvas.h * 0.09)
+    canvas.draw.text((key_x0, key_top0), "MOOD KEY", font=key_title_font, fill=palette["ink"])
 
     labels = ["Amazing", "Happy", "Calm", "Okay", "Sad", "Stressed", "Anxious", "Awful"]
+    glyphs = ["star", "heart", "sun", "leaf", "cloud", "bolt", "spiral", "skull"]
     colors = _mood_colors(palette)
-    key_top = area_top + int(canvas.h * 0.05)
+    key_top = key_top0 + int(canvas.h * 0.05)
     row_h = (area_bottom - key_top) / len(labels)
-    swatch_r = int(canvas.w * 0.011)
-    for i, (label, color) in enumerate(zip(labels, colors)):
+    swatch_r = int(canvas.w * 0.013)
+    for i, (label, glyph, color) in enumerate(zip(labels, glyphs, colors)):
         cy = key_top + i * row_h + swatch_r
         canvas.draw.ellipse([key_x0, cy - swatch_r, key_x0 + 2 * swatch_r, cy + swatch_r], fill=color)
+        glyph_color = "#FFFFFF" if sum(color) < 380 else _shade(palette["ink"], 0.0)
+        _mood_glyph(canvas.draw, glyph, key_x0 + swatch_r, cy, swatch_r * 0.7, glyph_color)
         canvas.draw.text(
             (key_x0 + swatch_r * 2.6, cy), label.upper(), font=key_font, fill=palette["ink"], anchor="lm"
         )
-
-    # decorative corner icons + bottom banner
-    icon_r = int(canvas.w * 0.02)
-    draw_icon(canvas.draw, "moon_stars", margin + icon_r * 1.2, top - int(canvas.h * 0.01), icon_r, palette["accent"][0])
-    draw_icon(canvas.draw, "bat", canvas.w - margin - icon_r * 1.2, top - int(canvas.h * 0.01), icon_r, palette["ink"])
 
     banner_font = ImageFont.truetype(resolve_font("serif_bold"), int(canvas.w * 0.032))
     banner_text = "MAGIC IN PROGRESS"
@@ -576,29 +690,63 @@ def _mood_tracker(canvas: Canvas, palette: dict, header_text: str) -> None:
 
 
 def _weekly_todo(canvas: Canvas, palette: dict, header_text: str) -> None:
-    """A row-of-cards weekly to-do list - a pill-shaped, icon-badged day
-    header over checkbox lines, laid out Mon-Sat in a 3x2 grid with Sunday
-    and a Self Care section filling the last row. An original take on the
-    trending illustrated weekly-checklist format (own icon set/palette,
-    not a traced layout)."""
+    """A cream-parchment weekly to-do list: an illustrated header cluster
+    (mug, pumpkins, ghost, book stack) over a 3x2+Sunday/Self-Care grid
+    of cards, each with a small tab-style day badge, heart checkboxes,
+    and dotted lines - modeled closely on the trending illustrated
+    weekly-checklist format the user pointed to (own art/copy, same
+    overall structure and feel)."""
+    _fill_page(canvas, CREAM_PAGE_BG)
     margin = int(canvas.w * 0.06)
-    top = _header(canvas, palette, header_text, margin)
 
-    subtitle_font = ImageFont.truetype(resolve_font("serif_italic"), int(canvas.w * 0.028))
-    canvas.draw.text((canvas.w / 2, top), "Happy Spooky Season", font=subtitle_font, fill=palette["accent"][0], anchor="ma")
-    top += int(canvas.h * 0.045)
+    title_top = margin + int(canvas.h * 0.01)
+    script_font = ImageFont.truetype(resolve_font("serif_italic"), int(canvas.w * 0.09))
+    caps_font = ImageFont.truetype(resolve_font("serif_bold"), int(canvas.w * 0.065))
+    canvas.draw.text((canvas.w / 2, title_top), "Weekly", font=script_font, fill=palette["ink"], anchor="ma")
+    bbox = canvas.draw.textbbox((0, 0), "Weekly", font=script_font)
+    title_top += (bbox[3] - bbox[1]) + int(canvas.h * 0.005)
+    canvas.draw.text((canvas.w / 2, title_top), "TO-DO LIST", font=caps_font, fill=palette["ink"], anchor="ma")
+    bbox2 = canvas.draw.textbbox((0, 0), "TO-DO LIST", font=caps_font)
+    title_top += (bbox2[3] - bbox2[1]) + int(canvas.h * 0.012)
+
+    subtitle_font = ImageFont.truetype(resolve_font("sans_bold"), int(canvas.w * 0.024))
+    canvas.draw.text((canvas.w / 2, title_top), "HAPPY SPOOKY SEASON", font=subtitle_font, fill=palette["accent"][0], anchor="ma")
+    bbox3 = canvas.draw.textbbox((0, 0), "HAPPY SPOOKY SEASON", font=subtitle_font)
+    top = title_top + (bbox3[3] - bbox3[1]) + int(canvas.h * 0.025)
+
+    # header cluster flanking the title: a mug on the left, a small book
+    # stack on the right, each with a pumpkin/ghost accent
+    deco_r = canvas.w * 0.028
+    mug_cx, mug_cy = margin + deco_r * 1.8, margin + deco_r * 2.2
+    canvas.draw.rounded_rectangle(
+        [mug_cx - deco_r, mug_cy - deco_r, mug_cx + deco_r, mug_cy + deco_r * 1.1],
+        radius=deco_r * 0.3, fill=palette["accent"][0], outline=palette["ink"], width=2,
+    )
+    canvas.draw.arc(
+        [mug_cx + deco_r * 0.6, mug_cy - deco_r * 0.5, mug_cx + deco_r * 1.6, mug_cy + deco_r * 0.6],
+        start=270, end=90, fill=palette["ink"], width=2,
+    )
+    canvas.draw.ellipse(
+        [mug_cx - deco_r * 1.05, mug_cy - deco_r * 1.35, mug_cx + deco_r * 1.05, mug_cy - deco_r * 0.75], fill="#FFFFFF",
+    )
+    draw_icon(canvas.draw, "pumpkin", mug_cx + deco_r * 2.2, mug_cy + deco_r * 0.3, deco_r * 0.85, palette["ink"], palette["accent"][1])
+
+    book_cx, book_cy = canvas.w - margin - deco_r * 2.2, margin + deco_r * 2.4
+    for i, tint in enumerate((_tint(palette["accent"][1], 0.15), _tint(palette["accent"][2], 0.15))):
+        bw, bh = deco_r * 2.6 - i * deco_r * 0.3, deco_r * 0.55
+        by = book_cy + deco_r * 0.7 - i * bh
+        canvas.draw.rectangle([book_cx - bw / 2, by - bh, book_cx + bw / 2, by], fill=tint, outline=palette["ink"], width=2)
+    draw_icon(canvas.draw, "ghost", book_cx - deco_r * 1.8, book_cy - deco_r * 0.6, deco_r * 0.7, palette["ink"])
+    draw_icon(canvas.draw, "pumpkin", book_cx, book_cy - deco_r * 1.3, deco_r * 0.75, palette["ink"], palette["accent"][1])
 
     grid_bottom = canvas.h - margin
     n_cols, n_rows = 3, 3
     col_w = (canvas.w - 2 * margin) / n_cols
     row_h = (grid_bottom - top) / n_rows
-    gap = min(col_w, row_h) * 0.06
+    gap = min(col_w, row_h) * 0.07
 
-    day_layout = [["MON", "TUE", "WED"], ["THU", "FRI", "SAT"], ["SUN", "SELF CARE", None]]
-    icon_map = {
-        "MON": "pumpkin", "TUE": "ghost", "WED": "bat", "THU": "jack_o_lantern_face",
-        "FRI": "black_cat", "SAT": "witch_hat", "SUN": "moon_stars", "SELF CARE": "star_sparkle",
-    }
+    day_layout = [["MONDAY", "TUESDAY", "WEDNESDAY"], ["THURSDAY", "FRIDAY", "SATURDAY"], ["SUNDAY", "SELF CARE", None]]
+    card_fill = _tint(palette["accent"][0], 0.8)
 
     def cell_box(r: int, c: int) -> tuple[float, float, float, float]:
         x0 = margin + c * col_w + gap
@@ -612,20 +760,34 @@ def _weekly_todo(canvas: Canvas, palette: dict, header_text: str) -> None:
             if label is None:
                 continue
             x0, y0, x1, y1 = cell_box(r, c)
-            pill_h = (y1 - y0) * 0.17
-            canvas.draw.rounded_rectangle([x0, y0, x1, y0 + pill_h], radius=pill_h * 0.4, fill=palette["accent"][0])
-            label_font = ImageFont.truetype(resolve_font("sans_bold"), max(10, int(pill_h * 0.44)))
-            canvas.draw.text((x0 + pill_h * 0.55, y0 + pill_h / 2), label, font=label_font, fill="#FFFFFF", anchor="lm")
-            icon_r = pill_h * 0.3
-            draw_icon(canvas.draw, icon_map.get(label, "star_sparkle"), x1 - pill_h * 0.55, y0 + pill_h / 2, icon_r, "#FFFFFF")
+            canvas.draw.rounded_rectangle([x0, y0, x1, y1], radius=gap * 1.4, fill=card_fill, outline=palette["ink"], width=2)
+
+            pill_h = (y1 - y0) * 0.15
+            pill_w = (x1 - x0) * 0.66
+            pill_y = y0 - pill_h * 0.15
+            canvas.draw.rounded_rectangle(
+                [x0 + gap * 0.3, pill_y, x0 + gap * 0.3 + pill_w, pill_y + pill_h],
+                radius=pill_h * 0.45, fill=palette["accent"][0], outline=palette["ink"], width=2,
+            )
+            draw_icon(canvas.draw, "ghost", x0 + gap * 0.3 + pill_h * 0.55, pill_y + pill_h / 2, pill_h * 0.34, "#FFFFFF")
+            label_font = ImageFont.truetype(resolve_font("sans_bold"), max(9, int(pill_h * 0.4)))
+            canvas.draw.text(
+                (x0 + gap * 0.3 + pill_h * 1.15, pill_y + pill_h / 2), label, font=label_font, fill=palette["ink"], anchor="lm"
+            )
 
             n_lines = 5
-            avail_top, avail_bottom = y0 + pill_h + gap, y1
-            box = min(col_w, row_h) * 0.045
+            avail_top, avail_bottom = pill_y + pill_h + gap * 0.8, y1 - gap * 0.4
+            check_r = min(col_w, row_h) * 0.045
             for li in range(n_lines):
                 ly = avail_top + (li + 0.5) * (avail_bottom - avail_top) / n_lines
-                canvas.draw.rectangle([x0, ly - box / 2, x0 + box, ly + box / 2], outline=palette["ink"], width=2)
-                canvas.draw.line([(x0 + box * 1.8, ly), (x1 - gap * 0.3, ly)], fill=palette["accent"][-1], width=1)
+                _mini_heart(canvas.draw, x0 + gap * 0.6 + check_r, ly, check_r, palette["ink"])
+                _dotted_line(canvas.draw, x0 + gap * 0.6 + check_r * 2.6, x1 - gap * 0.5, ly, palette["accent"][-1])
+
+            if label == "SUNDAY":
+                _draw_mini_cauldron_scene(canvas.draw, x1 - gap * 1.6, y1 - gap * 1.6, gap * 1.3, palette["ink"])
+            else:
+                icon_name = "pumpkin" if (r + c) % 2 == 0 else "ghost"
+                draw_icon(canvas.draw, icon_name, x1 - gap * 1.3, y1 - gap * 1.3, gap * 1.0, palette["ink"], palette["accent"][1])
 
 
 _TEMPLATE_FN = {
