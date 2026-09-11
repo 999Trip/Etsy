@@ -98,6 +98,47 @@ def _crop_to_ratio(master: Image.Image, target_w: int, target_h: int, anchor: fl
     return cropped.resize((target_w, target_h), Image.LANCZOS)
 
 
+def _detect_safe_zone(img: Image.Image, tol: int = 14, inset: float = 0.015) -> tuple[int, int, int, int]:
+    """Find the blank near-uniform-color box around the image's center
+    pixel, by scanning outward until the color stops matching - for
+    compositing into a Canva background whose blank safe-zone isn't at a
+    fixed fraction of every crop. Unlike a hardcoded safe-zone fraction,
+    this is measured on the actual cropped/resized canvas being composited
+    onto, so it's correct for every target aspect ratio independently -
+    a fraction measured on one ratio (e.g. the raw master) doesn't
+    transfer to a differently-cropped ratio, since _crop_to_ratio takes a
+    different slice of the master for each (this caused a real bug: a
+    weekly-planner background's witch-hat illustration overlapped the
+    title on A4 because the safe-zone fraction was only measured on the
+    Letter-ratio master). Returns a box inset slightly from the detected
+    edges to stay clear of the background's own border/shadow line."""
+    w, h = img.size
+    px = img.load()
+    cx, cy = w // 2, h // 2
+    cr, cg, cb = px[cx, cy][:3]
+
+    def matches(x: int, y: int) -> bool:
+        p = px[x, y]
+        return abs(p[0] - cr) <= tol and abs(p[1] - cg) <= tol and abs(p[2] - cb) <= tol
+
+    left = cx
+    while left > 0 and matches(left, cy):
+        left -= 1
+    right = cx
+    while right < w - 1 and matches(right, cy):
+        right += 1
+    top = cy
+    while top > 0 and matches(cx, top):
+        top -= 1
+    bottom = cy
+    while bottom < h - 1 and matches(cx, bottom):
+        bottom += 1
+
+    inset_x = int((right - left) * inset)
+    inset_y = int((bottom - top) * inset)
+    return left + inset_x, top + inset_y, right - inset_x, bottom - inset_y
+
+
 def _fit_within(master: Image.Image, max_w: int, max_h: int) -> Image.Image:
     """Scale `master` to fit entirely within (max_w, max_h), preserving
     its own aspect ratio - the whole graphic stays visible, sized for a
@@ -525,6 +566,103 @@ def import_calendar_with_illustrated_background(
         "canva_edit_url": canva_edit_url,
         "variant": variant,
         "generator_type": "canva_calendar",
+        "title": seo["title"],
+        "description": seo["description"],
+        "tags": seo["tags"],
+        "price_digital": price_digital,
+        "price_pod": None,
+        "pod_sizes": [],
+        "digital_sizes": digital_sizes,
+        "preview": str(preview_path),
+        "files": files,
+    }
+    with open(design_dir / "metadata.json", "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+
+    return metadata
+
+
+def import_weekly_planner_with_illustrated_background(
+    niche_name: str,
+    variant: str,
+    master_pdf_url: str,
+    canva_design_id: str,
+    *,
+    palette_name: str = "terracotta_boho",
+    canva_edit_url: str | None = None,
+    out_dir: Path | None = None,
+    price_override: float | None = None,
+    safe_zone: tuple[float, float, float, float] | None = None,
+) -> dict:
+    """Same illustrated-background + procedural-grid pattern as
+    import_calendar_with_illustrated_background, for a weekly planner
+    instead of a monthly calendar (render_weekly_grid_rgba).
+
+    Unlike the calendar version, `safe_zone` defaults to None (auto-detect
+    per digital size via _detect_safe_zone) rather than a fixed fraction -
+    this background is a full border frame, not a top-only illustration,
+    so its blank box doesn't sit at a fixed fraction across differently-
+    cropped aspect ratios. Pass explicit fractions only to override."""
+    from design.generators.planner import render_weekly_grid_rgba
+
+    niches = load_niches()
+    niche = niches[niche_name]
+    digital_sizes = niche.get("digital_sizes", [])
+    if not digital_sizes:
+        raise ValueError(f"Niche '{niche_name}' has no digital_sizes configured.")
+
+    context = {"variant_title": humanize(variant), "quote": "", "quote_short": "", "motif_title": "", "text": ""}
+    seo = render_seo(niche, context)
+
+    out_dir = out_dir or Path("output") / niche_name
+    design_slug = slugify(f"{niche_name}-{variant}-{uuid.uuid4().hex[:6]}")
+    design_dir = out_dir / design_slug
+
+    master_pdf_path = design_dir / "_master.pdf"
+    _download(master_pdf_url, master_pdf_path)
+    master = _rasterize_master(master_pdf_path)
+    master_pdf_path.unlink()
+
+    files: dict[str, dict[str, str]] = {}
+    preview_path = design_dir / "preview.jpg"
+    preview_size = digital_sizes[0]
+
+    for size_name in digital_sizes:
+        w, h = size_px(size_name)
+        background = _crop_to_ratio(master, w, h).convert("RGBA")
+
+        if safe_zone is not None:
+            x0, y0, x1, y1 = int(safe_zone[0] * w), int(safe_zone[1] * h), int(safe_zone[2] * w), int(safe_zone[3] * h)
+        else:
+            x0, y0, x1, y1 = _detect_safe_zone(background)
+        grid_canvas = render_weekly_grid_rgba((x1 - x0, y1 - y0), context["variant_title"], palette_name)
+        background.alpha_composite(grid_canvas.image, (x0, y0))
+        final = background.convert("RGB")
+
+        png_path = design_dir / f"{size_name}.png"
+        final.save(png_path, "PNG")
+        files.setdefault("png", {})[size_name] = str(png_path)
+
+        pdf_path = design_dir / f"{size_name}.pdf"
+        final.save(pdf_path, "PDF", resolution=RASTER_DPI)
+        files.setdefault("pdf", {})[size_name] = str(pdf_path)
+
+        if size_name == preview_size:
+            preview = final.copy()
+            preview.thumbnail((1600, 1600))
+            preview.save(preview_path, "JPEG", quality=87)
+
+    price_digital = price_override if price_override is not None else niche.get("price_digital")
+
+    metadata = {
+        "design_id": design_slug,
+        "niche": niche_name,
+        "product_mode": niche.get("product_mode", "digital"),
+        "source": "canva+procedural",
+        "canva_design_id": canva_design_id,
+        "canva_edit_url": canva_edit_url,
+        "variant": variant,
+        "generator_type": "canva_weekly_planner",
         "title": seo["title"],
         "description": seo["description"],
         "tags": seo["tags"],

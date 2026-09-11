@@ -1018,3 +1018,51 @@ niches:
         - autumn planner
         - cozy planner
         - desk calendar
+
+  halloween_weekly_planner_printable:
+    type: planner
+    product_mode: digital
+    # Same reasoning as fall_halloween_calendar_printable: Canva can't
+    # reliably produce an actual write-in weekly grid, so this uses the
+    # illustrated-background + procedural-grid pattern (see
+    # pipeline.canva_import.import_weekly_planner_with_illustrated_background)
+    # rather than asking Canva's AI to generate the grid itself.
+    planner_template: weekly_planner
+    header_template: "{variant_title}"
+    palettes: [terracotta_boho, midnight_gold, pumpkin_orange, sage_minimal]
+    variants:
+      - name: Weekly Planner
+    digital_sizes: [letter_8.5x11, a4]
+    # Matches fall_halloween_calendar_printable's single-design pricing -
+    # bold illustrated background, fillable write-in grid.
+    price_digital: 4.50
+    seo:
+      title_template: >-
+        Halloween Weekly Planner Printable | Spooky Cute Fillable
+        Undated Week Planner Page | Instant Download
+      description_template: |
+        A spooky-cute Halloween weekly planner page - a bold illustrated
+        design with a clean, fillable Monday-Sunday grid plus a notes
+        section, for planning out your week by hand.
+
+        WHAT YOU GET
+        - High-resolution PDF and PNG files (300 DPI)
+        - Letter (8.5x11) and A4 sizes included
+        - Undated - use it any week, print as many as you like
+
+        This is a digital file - no physical item will be shipped. Print
+        at home or at your favorite print shop.
+      tags:
+        - weekly planner
+        - halloween planner
+        - printable planner
+        - fillable planner
+        - undated planner
+        - digital download
+        - instant download
+        - spooky planner
+        - fall planner
+        - cozy planner
+        - productivity planner
+        - planner page
+        - to do list

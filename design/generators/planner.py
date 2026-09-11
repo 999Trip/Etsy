@@ -98,6 +98,97 @@ def _weekly_planner(canvas: Canvas, palette: dict, header_text: str) -> None:
         canvas.draw.line([(margin + 3 * r, cy + r), (canvas.w - margin, cy + r)], fill=line_color, width=1)
 
 
+def _weekly_grid_content(canvas: Canvas, palette: dict, header_text: str) -> None:
+    """The write-in week grid only (title, MONTH/WEEK fields, a 3x3 box
+    of day cells with Sunday + Notes sharing the bottom row - matches the
+    layout of well-performing competitor weekly planners), sized to fill
+    whatever canvas it's given. Used both by _weekly_planner (on its own
+    plain white page) and render_weekly_grid_rgba (composited into an
+    illustrated background's safe zone)."""
+    margin = int(canvas.w * 0.06)
+    line_color = palette["accent"][-1]
+    title_font = ImageFont.truetype(resolve_font("serif_bold"), int(canvas.w * 0.09))
+    field_font = ImageFont.truetype(resolve_font("sans_bold"), int(canvas.w * 0.032))
+    label_font = ImageFont.truetype(resolve_font("sans_bold"), int(canvas.w * 0.034))
+
+    # Extra clearance above the title, beyond the plain margin: a
+    # composited illustrated background's corner art (e.g. a witch hat
+    # tilted into the top-left) can dip below the detected blank-box
+    # edge without crossing its center row/column, so centerline-based
+    # safe-zone detection (_detect_safe_zone) won't catch it - found via
+    # a real title/hat collision on the Halloween weekly planner. This
+    # keeps the title clear of that kind of corner bleed regardless.
+    top = margin + int(canvas.h * 0.09)
+    bbox = canvas.draw.textbbox((0, 0), header_text.upper(), font=title_font)
+    canvas.draw.text((canvas.w / 2, top), header_text.upper(), font=title_font, fill=palette["ink"], anchor="ma")
+    top += (bbox[3] - bbox[1]) + int(canvas.h * 0.03)
+
+    canvas.draw.text((margin, top), "MONTH:", font=field_font, fill=palette["ink"])
+    canvas.draw.line(
+        [(margin + field_font.size * 3.2, top + field_font.size * 0.85), (canvas.w * 0.52, top + field_font.size * 0.85)],
+        fill=line_color, width=2,
+    )
+    canvas.draw.text((canvas.w * 0.56, top), "WEEK:", font=field_font, fill=palette["ink"])
+    canvas.draw.line(
+        [(canvas.w * 0.56 + field_font.size * 2.8, top + field_font.size * 0.85), (canvas.w - margin, top + field_font.size * 0.85)],
+        fill=line_color, width=2,
+    )
+    top += int(canvas.h * 0.06)
+
+    grid_bottom = canvas.h - margin
+    n_cols, n_rows = 3, 3
+    col_w = (canvas.w - 2 * margin) / n_cols
+    row_h = (grid_bottom - top) / n_rows
+    gap = min(col_w, row_h) * 0.06
+
+    day_layout = [
+        ["MON", "TUE", "WED"],
+        ["THU", "FRI", "SAT"],
+        ["SUN", None, None],
+    ]
+
+    def cell_box(r: int, c: int, span: int = 1) -> tuple[float, float, float, float]:
+        x0 = margin + c * col_w + gap
+        y0 = top + r * row_h + gap
+        x1 = margin + (c + span) * col_w - gap
+        y1 = top + (r + 1) * row_h - gap
+        return x0, y0, x1, y1
+
+    for r, row in enumerate(day_layout):
+        c = 0
+        while c < n_cols:
+            label = row[c]
+            if label is None:
+                c += 1
+                continue
+            x0, y0, x1, y1 = cell_box(r, c)
+            canvas.draw.rectangle([x0, y0, x1, y1], outline=line_color, width=2)
+            canvas.draw.text((x0 + gap, y0 + gap * 0.6), label, font=label_font, fill=palette["ink"])
+            for li in range(1, 6):
+                ly = y0 + (y1 - y0) * (0.32 + li * 0.12)
+                if ly < y1 - gap:
+                    canvas.draw.line([(x0 + gap, ly), (x1 - gap, ly)], fill=line_color, width=1)
+            c += 1
+
+    notes_x0, notes_y0, notes_x1, notes_y1 = cell_box(2, 1, span=2)
+    canvas.draw.rectangle([notes_x0, notes_y0, notes_x1, notes_y1], outline=line_color, width=2)
+    canvas.draw.text((notes_x0 + gap, notes_y0 + gap * 0.6), "NOTES", font=label_font, fill=palette["ink"])
+    for li in range(1, 6):
+        ly = notes_y0 + (notes_y1 - notes_y0) * (0.32 + li * 0.12)
+        if ly < notes_y1 - gap:
+            canvas.draw.line([(notes_x0 + gap, ly), (notes_x1 - gap, ly)], fill=line_color, width=1)
+
+
+def render_weekly_grid_rgba(size: tuple[int, int], header_text: str, palette_name: str) -> "Canvas":
+    """The weekly grid rendered on a transparent canvas, for compositing
+    into a safe-zone box of an externally illustrated background - same
+    pattern as render_calendar_grid_rgba."""
+    palette = get_palette(palette_name)
+    canvas = Canvas.transparent(size)
+    _weekly_grid_content(canvas, palette, header_text)
+    return canvas
+
+
 def _budget_tracker(canvas: Canvas, palette: dict, header_text: str) -> None:
     margin = int(canvas.w * 0.09)
     top = _header(canvas, palette, header_text, margin)
