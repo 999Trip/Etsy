@@ -318,6 +318,13 @@ defects a full-page or whole-composition view won't show:
   - a crop or composite that looks right in the flat source image can
   still cut through a focal point once mapped onto the real print
   shape.
+- **Every listing needs at least 2 images before it goes active** -
+  Etsy's own visibility/algo guidance and basic buyer trust both depend
+  on it, and a single-photo listing reads as unfinished. For a one-page
+  digital printable, a cropped close-up of the illustrated portion (full
+  resolution, not the downsized preview) makes a good second image -
+  check that the crop actually centers on content and doesn't waste most
+  of the frame on blank background before uploading it.
 
 None of this is optional polish - it's the difference between a listing
 you'd actually want a customer to see and one that ships an obvious
@@ -338,6 +345,21 @@ open decisions - pricing a materially new product, personalization/
 per-order fulfillment, anything with real recurring cost (a paid tool,
 an ad spend) - not for "should I build the thing that's obviously
 working."
+
+**Standing exception: post the finished listing preview here for
+approval before activating it on Etsy - don't auto-publish.** This
+came from two rounds of a cauldron mood tracker / weekly to-do list
+shipping designs the user didn't want (first a too-minimal procedural
+version, then a solid-fill cauldron that still wasn't "an actual one")
+before the Canva-illustrated version actually landed. Build and QC the
+design per the steps above, but leave the listing in draft/inactive
+and show the rendered preview in chat first; only call `activate_listing`
+after the user confirms. This doesn't reopen the "don't wait for a
+go-ahead to build it" rule above - keep building/iterating proactively -
+it just moves the go/no-go checkpoint to right before the listing goes
+live and becomes purchasable, which is the step that's actually hard to
+undo cleanly (an active listing needs a title/image/file swap plus a
+public-visibility gap to fix, not a quick re-render).
 
 **Standing exception: hold off on new Printify physical products (apparel,
 shirts, etc.) until the user confirms a payment method is on file for
