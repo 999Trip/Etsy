@@ -171,8 +171,50 @@ class EtsyClient:
                 data={"name": name or file_path.stem, "rank": rank},
             )
 
+    def get_listing_files(self, shop_id: str, listing_id: int) -> list[dict]:
+        return self._request("GET", f"/shops/{shop_id}/listings/{listing_id}/files")["results"]
+
+    def delete_listing_file(self, shop_id: str, listing_id: int, listing_file_id: int) -> None:
+        self._request("DELETE", f"/shops/{shop_id}/listings/{listing_id}/files/{listing_file_id}")
+
+    def get_listing_images(self, shop_id: str, listing_id: int) -> list[dict]:
+        # Unlike most listing sub-resources, GET images is not shop-scoped.
+        return self._request("GET", f"/listings/{listing_id}/images")["results"]
+
+    def delete_listing_image(self, shop_id: str, listing_id: int, listing_image_id: int) -> None:
+        self._request("DELETE", f"/shops/{shop_id}/listings/{listing_id}/images/{listing_image_id}")
+
     def update_listing(self, shop_id: str, listing_id: int, **fields: Any) -> dict:
+        """Note: a `price` kwarg here is silently ignored once a listing has
+        inventory (true for any listing that's ever been through the normal
+        create/activate flow) - Etsy stores price on the listing's inventory
+        offerings, not the listing itself. Use update_listing_price."""
         return self._request("PATCH", f"/shops/{shop_id}/listings/{listing_id}", json=fields)
+
+    def update_listing_price(self, listing_id: int, price: float) -> dict:
+        """Update price via the inventory endpoint - the top-level
+        `price` field on PATCH /listings/{listing_id} is ignored for any
+        listing that already has inventory (offerings), which is every
+        listing created through the normal flow. This preserves the
+        existing sku/quantity/enabled state and just changes price."""
+        inventory = self._request("GET", f"/listings/{listing_id}/inventory")
+        for product in inventory["products"]:
+            for offering in product["offerings"]:
+                offering["price"] = price
+        body = {
+            "products": [
+                {
+                    "sku": p["sku"],
+                    "offerings": [
+                        {"quantity": o["quantity"], "is_enabled": o["is_enabled"], "price": o["price"]}
+                        for o in p["offerings"]
+                    ],
+                    "property_values": p["property_values"],
+                }
+                for p in inventory["products"]
+            ]
+        }
+        return self._request("PUT", f"/listings/{listing_id}/inventory", json=body)
 
     def activate_listing(self, shop_id: str, listing_id: int) -> dict:
         """Move a listing from draft to active (publicly visible on Etsy).

@@ -331,6 +331,112 @@ def import_full_year_calendar(
     return metadata
 
 
+def import_multi_design_year_calendar(
+    niche_name: str,
+    variant: str,
+    month_designs: dict[int, dict],
+    *,
+    year: int,
+    preview_month: int = 10,
+    palette_name: str = "terracotta_boho",
+    out_dir: Path | None = None,
+    price_override: float | None = None,
+    safe_zone: tuple[float, float, float, float] = CALENDAR_SAFE_ZONE,
+) -> dict:
+    """Like import_full_year_calendar, but each month gets its own
+    illustrated Canva background instead of reusing one across all 12
+    pages (e.g. a January witches/cauldrons scene, a February haunted-
+    house scene, etc.) - matches the "12 unique patterns" format popular
+    on competing calendar listings, rather than one repeated background.
+
+    `month_designs` must have an entry for every month 1-12, each a dict
+    with `master_pdf_path` (a local Canva PDF export already downloaded -
+    no Canva calls are made here), `canva_design_id`, and optionally
+    `canva_edit_url`.
+    """
+    import calendar as _cal
+
+    from design.generators.planner import render_calendar_grid_rgba
+
+    niches = load_niches()
+    niche = niches[niche_name]
+    digital_sizes = niche.get("digital_sizes", [])
+    if not digital_sizes:
+        raise ValueError(f"Niche '{niche_name}' has no digital_sizes configured.")
+
+    missing = [m for m in range(1, 13) if m not in month_designs]
+    if missing:
+        raise ValueError(f"month_designs missing entries for months: {missing}")
+
+    context = {"variant_title": humanize(variant), "quote": "", "quote_short": "", "motif_title": "", "text": ""}
+    seo = render_seo(niche, context)
+
+    out_dir = out_dir or Path("output") / niche_name
+    design_slug = slugify(f"{niche_name}-{variant}-{uuid.uuid4().hex[:6]}")
+    design_dir = out_dir / design_slug
+    design_dir.mkdir(parents=True, exist_ok=True)
+
+    masters = {month: _rasterize_master(Path(spec["master_pdf_path"])) for month, spec in month_designs.items()}
+
+    files: dict[str, dict[str, str]] = {}
+    preview_path = design_dir / "preview.jpg"
+    preview_size = digital_sizes[0]
+
+    for size_name in digital_sizes:
+        w, h = size_px(size_name)
+        x0 = int(safe_zone[0] * w)
+        y0 = int(safe_zone[1] * h)
+        x1 = int(safe_zone[2] * w)
+        y1 = int(safe_zone[3] * h)
+
+        pages = []
+        for month in range(1, 13):
+            bg = _crop_to_ratio(masters[month], w, h).convert("RGBA")
+            header = f"{_cal.month_name[month]} {year}"
+            grid_canvas = render_calendar_grid_rgba((x1 - x0, y1 - y0), header, palette_name, month=month, year=year)
+            bg.alpha_composite(grid_canvas.image, (x0, y0))
+            page = bg.convert("RGB")
+            pages.append(page)
+            if month == preview_month:
+                png_path = design_dir / f"{size_name}.png"
+                page.save(png_path, "PNG")
+                files.setdefault("png", {})[size_name] = str(png_path)
+                if size_name == preview_size:
+                    preview = page.copy()
+                    preview.thumbnail((1600, 1600))
+                    preview.save(preview_path, "JPEG", quality=87)
+
+        pdf_path = design_dir / f"{size_name}.pdf"
+        pages[0].save(pdf_path, "PDF", save_all=True, append_images=pages[1:], resolution=RASTER_DPI)
+        files.setdefault("pdf", {})[size_name] = str(pdf_path)
+
+    price_digital = price_override if price_override is not None else niche.get("price_digital")
+
+    metadata = {
+        "design_id": design_slug,
+        "niche": niche_name,
+        "product_mode": niche.get("product_mode", "digital"),
+        "source": "canva+procedural",
+        "canva_design_id": {str(m): spec["canva_design_id"] for m, spec in month_designs.items()},
+        "canva_edit_url": {str(m): spec.get("canva_edit_url") for m, spec in month_designs.items()},
+        "variant": variant,
+        "generator_type": "canva_calendar_multi",
+        "title": seo["title"],
+        "description": seo["description"],
+        "tags": seo["tags"],
+        "price_digital": price_digital,
+        "price_pod": None,
+        "pod_sizes": [],
+        "digital_sizes": digital_sizes,
+        "preview": str(preview_path),
+        "files": files,
+    }
+    with open(design_dir / "metadata.json", "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+
+    return metadata
+
+
 def import_calendar_with_illustrated_background(
     niche_name: str,
     variant: str,
