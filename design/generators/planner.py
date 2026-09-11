@@ -263,10 +263,15 @@ def render_calendar_grid_rgba(
     """monthly_calendar rendered on a transparent canvas at `size`, for
     compositing into a safe-zone box of an externally illustrated
     background (see pipeline/canva_import.py's calendar-background
-    workflow) instead of onto _monthly_calendar's own plain white page."""
+    workflow) instead of onto _monthly_calendar's own plain white page.
+
+    No accent icons in empty cells here (accent_motifs=()) - the
+    illustrated Canva background already carries the design; small icons
+    scattered inside the plain grid area read as clutter/mistakes rather
+    than decoration once there's a bold illustrated border above it."""
     palette = get_palette(palette_name)
     canvas = Canvas.transparent(size)
-    _monthly_calendar(canvas, palette, header_text, month=month, year=year, undated=undated)
+    _monthly_calendar(canvas, palette, header_text, month=month, year=year, undated=undated, accent_motifs=())
     return canvas
 
 
