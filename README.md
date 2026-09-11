@@ -362,13 +362,17 @@ undo cleanly (an active listing needs a title/image/file swap plus a
 public-visibility gap to fix, not a quick re-render).
 
 **Standing exception: hold off on new Printify physical products (apparel,
-shirts, etc.) until the user confirms a payment method is on file for
-additional listings.** This doesn't block digital-only work (printables,
-calendars, planners, wrap-file bundles) or anything on already-approved
-product types (tumblers) - it's specifically new Printify product
-*categories* while billing is unconfirmed. Check with the user before
-publishing a new physical product type; ask if this still holds before
-assuming it's been lifted.
+shirts, candles, etc.) until the user confirms a payment method is on
+file for additional listings.** This doesn't block digital-only work
+(printables, calendars, planners, wrap-file bundles) or anything on
+already-approved product types (tumblers/water bottles) - it's
+specifically new Printify product *categories* while billing is
+unconfirmed. Check with the user before publishing a new physical
+product type; ask if this still holds before assuming it's been lifted.
+As of the most recent check, payment is still not on file - candles were
+proposed (scented soy candle blueprint, fall/Halloween label art in the
+same illustrated style as the planners) and queued for whenever this
+clears, not built yet.
 
 **Vary the color palette across products - don't let the whole store
 default to the same one or two colors.** It's easy for every Halloween
