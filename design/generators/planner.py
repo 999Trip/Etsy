@@ -432,52 +432,92 @@ def _mood_tracker(canvas: Canvas, palette: dict, header_text: str) -> None:
     pot_r = min(pot_w, pot_h) / 2
     pot_cy = area_top + pot_r + int(canvas.h * 0.02)
     line_w = max(3, int(canvas.w * 0.004))
+    pot_fill = palette["ink"]
+    plaque_fill = (255, 255, 255)
+    highlight = _tint(palette["ink"], 0.55)
 
-    # steam wisps above the pot
+    # A real pot silhouette, not a circle: a wide rounded belly (ellipse)
+    # topped by a narrower tapered neck (trapezoid, its bottom hidden
+    # under the belly so the join reads as one continuous shape) and a
+    # flared rim lip, solid-filled like cast iron - the numbered days sit
+    # on a light plaque inset into the belly instead of directly on the
+    # dark fill.
+    belly_rx = pot_r * 1.0
+    belly_ry = pot_r * 0.86
+    belly_cy = pot_cy + pot_r * 0.08
+    neck_top_y = belly_cy - belly_ry - pot_r * 0.3
+    neck_top_w = belly_rx * 0.56
+    neck_bottom_w = belly_rx * 0.97
+    rim_h = pot_r * 0.15
+
+    # steam wisps above the pot mouth
     for dx in (-pot_r * 0.35, 0.0, pot_r * 0.35):
         sx = pot_cx + dx
-        sy = pot_cy - pot_r - int(canvas.h * 0.01)
+        sy = neck_top_y - int(canvas.h * 0.008)
         for seg in range(3):
             wob = pot_r * 0.07 * (1 if seg % 2 == 0 else -1)
             nx, ny = sx + wob, sy - int(canvas.h * 0.018)
             canvas.draw.line([(sx, sy), (nx, ny)], fill=palette["accent"][0], width=3)
             sx, sy = nx, ny
 
-    # handles (half-ellipse bulging out from each side, flat edge flush
-    # with the pot outline), then body, then rim on top so the body
-    # outline reads cleanly over the handle/leg attachment points
-    handle_h = pot_r * 0.5
-    handle_w = pot_r * 0.16
-    hy = pot_cy - pot_r * 0.15
+    # handles at the shoulder (where neck meets belly), drawn before the
+    # body fill so the body's edge overlaps their attachment points
+    handle_h = pot_r * 0.4
+    handle_w = pot_r * 0.14
+    hy = belly_cy - belly_ry * 0.55
     canvas.draw.arc(
-        [pot_cx + pot_r - handle_w, hy - handle_h / 2, pot_cx + pot_r + handle_w, hy + handle_h / 2],
+        [pot_cx + neck_bottom_w - handle_w, hy - handle_h / 2, pot_cx + neck_bottom_w + handle_w, hy + handle_h / 2],
         start=270, end=90, fill=palette["ink"], width=line_w,
     )
     canvas.draw.arc(
-        [pot_cx - pot_r - handle_w, hy - handle_h / 2, pot_cx - pot_r + handle_w, hy + handle_h / 2],
+        [pot_cx - neck_bottom_w - handle_w, hy - handle_h / 2, pot_cx - neck_bottom_w + handle_w, hy + handle_h / 2],
         start=90, end=270, fill=palette["ink"], width=line_w,
     )
+
+    # legs (tripod under the belly)
     leg_len = pot_r * 0.18
     for side in (-1, 0, 1):
         lx = pot_cx + side * pot_r * 0.55
-        ly0 = pot_cy + pot_r
+        ly0 = belly_cy + belly_ry * 0.98
         canvas.draw.line([(lx, ly0), (lx - leg_len * 0.5, ly0 + leg_len)], fill=palette["ink"], width=line_w)
         canvas.draw.line([(lx, ly0), (lx + leg_len * 0.5, ly0 + leg_len)], fill=palette["ink"], width=line_w)
-    canvas.draw.ellipse(
-        [pot_cx - pot_r, pot_cy - pot_r, pot_cx + pot_r, pot_cy + pot_r], outline=palette["ink"], width=line_w
+
+    # neck (trapezoid, bottom corners hidden under the belly ellipse)
+    canvas.draw.polygon(
+        [
+            (pot_cx - neck_top_w, neck_top_y), (pot_cx + neck_top_w, neck_top_y),
+            (pot_cx + neck_bottom_w, belly_cy), (pot_cx - neck_bottom_w, belly_cy),
+        ],
+        fill=pot_fill,
     )
-    rim_h = pot_r * 0.16
+    # belly (solid iron-pot fill, outlined so it reads crisply on white)
     canvas.draw.ellipse(
-        [pot_cx - pot_r * 1.04, pot_cy - pot_r - rim_h * 0.5, pot_cx + pot_r * 1.04, pot_cy - pot_r + rim_h * 0.5],
-        outline=palette["ink"], width=line_w,
+        [pot_cx - belly_rx, belly_cy - belly_ry, pot_cx + belly_rx, belly_cy + belly_ry],
+        fill=pot_fill, outline=palette["ink"], width=line_w,
+    )
+    # soft highlight streak for a touch of dimension, upper-left of the belly
+    canvas.draw.arc(
+        [pot_cx - belly_rx * 0.72, belly_cy - belly_ry * 0.72, pot_cx - belly_rx * 0.1, belly_cy + belly_ry * 0.15],
+        start=200, end=260, fill=highlight, width=max(2, line_w - 1),
+    )
+    # rim lip
+    canvas.draw.ellipse(
+        [pot_cx - neck_top_w * 1.08, neck_top_y - rim_h / 2, pot_cx + neck_top_w * 1.08, neck_top_y + rim_h / 2],
+        fill=pot_fill, outline=palette["ink"], width=line_w,
     )
 
-    # numbered day grid inside the cauldron
+    # numbered day grid, on a light plaque inset into the belly so the
+    # numbers/circles stay legible against the solid pot fill
     n_days, cols, rows = 31, 7, 5
     grid_w = pot_r * 1.3
     grid_h = grid_w * rows / cols
     gx0 = pot_cx - grid_w / 2
-    gy0 = pot_cy - grid_h / 2 + pot_r * 0.04
+    gy0 = belly_cy - grid_h / 2 + pot_r * 0.06
+    plaque_pad = pot_r * 0.09
+    canvas.draw.rounded_rectangle(
+        [gx0 - plaque_pad, gy0 - plaque_pad, gx0 + grid_w + plaque_pad, gy0 + grid_h + plaque_pad],
+        radius=plaque_pad * 1.2, fill=plaque_fill, outline=palette["ink"], width=2,
+    )
     cell_w, cell_h = grid_w / cols, grid_h / rows
     circle_r = min(cell_w, cell_h) * 0.36
     num_font = ImageFont.truetype(resolve_font("sans_bold"), max(10, int(cell_h * 0.32)))
