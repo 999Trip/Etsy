@@ -348,6 +348,17 @@ product types (tumblers) - it's specifically new Printify product
 publishing a new physical product type; ask if this still holds before
 assuming it's been lifted.
 
+**Vary the color palette across products - don't let the whole store
+default to the same one or two colors.** It's easy for every Halloween
+design in a session to end up purple/orange/cream because that's what
+the first design landed on; the user explicitly wants visual variety
+across the catalog instead of a monochromatic-looking store. When
+building or recreating a design, deliberately pick a palette that reads
+differently from what's already live for that niche (e.g. black/orange,
+deep teal/orange, burgundy/cream, navy/gold) rather than defaulting back
+to the same purple. Keep the palette on-brand for the niche/season, just
+don't repeat it listing after listing.
+
 ## Notes and caveats
 
 - **Procedural generation is free; Canva generation is not.** The
